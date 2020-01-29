@@ -1,0 +1,19 @@
+{
+  "name": "abaqusmanagerapi",
+  "version": "1.0.0",
+  "description": "RESTful api for Abaqus Job",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/toiro/abaqusmanagerapi.git"
+  },
+  "author": "Yusuke Soraji",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/toiro/abaqusmanagerapi/issues"
+  },
+  "homepage": "https://github.com/toiro/abaqusmanagerapi#readme"
+}
