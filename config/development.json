@@ -1,0 +1,9 @@
+{
+    "env" : "development",
+    "host" : "0.0.0.0",
+    "port" : 3000,
+    "mongo" : {
+        "host" : "localhost:27017",
+        "db" : "abaqusmanagerdev"
+    }
+}

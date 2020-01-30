@@ -1,0 +1,7 @@
+{
+    "env" : "test",
+    "mongo" : {
+        "host" : "localhost:27017",
+        "db" : "abaqusmanagertest"
+    }
+}

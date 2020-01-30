@@ -1,10 +1,13 @@
 {
+  "type": "module",
   "name": "abaqusmanagerapi",
   "version": "1.0.0",
   "description": "RESTful api for Abaqus Job",
-  "main": "index.js",
+  "main": "bin/amapi.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "postinstall": "link-module-alias",
+    "start": "node bin/amapi.js",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -15,5 +18,38 @@
   "bugs": {
     "url": "https://github.com/toiro/abaqusmanagerapi/issues"
   },
-  "homepage": "https://github.com/toiro/abaqusmanagerapi#readme"
+  "homepage": "https://github.com/toiro/abaqusmanagerapi#readme",
+  "dependencies": {
+    "commander": "^4.1.0",
+    "config": "^3.2.5",
+    "koa": "^2.11.0",
+    "koa-body": "^4.1.1",
+    "koa-compress": "^3.0.0",
+    "koa-logger-winston": "^0.0.2",
+    "koa-response-time": "^2.1.0",
+    "koa-router": "^8.0.6",
+    "mongoose": "^5.8.10",
+    "sqlite3": "^4.1.1",
+    "winston": "^3.2.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.8.3",
+    "@babel/core": "^7.8.3",
+    "@babel/preset-env": "^7.8.3",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
+    "eslint": "^6.8.0",
+    "eslint-config-koa": "^2.0.2",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.20.0",
+    "eslint-plugin-jest": "^23.6.0",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "jest": "^25.1.0",
+    "link-module-alias": "^1.2.0",
+    "supertest": "^4.0.2"
+  },
+  "_moduleAliases": {
+    "~": "."
+  }
 }
