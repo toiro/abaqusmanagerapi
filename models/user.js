@@ -1,23 +1,28 @@
+import mongoose from 'mongoose';
+import schema from './schemas/user.js';
+
+export const UserModel = mongoose.model('User', schema);
 
 export default {
-  addItem: async function(param) {
-    users.push({ id: users.length, name: param.username });
+  addItem: async username => {
+    const newUser = new UserModel({
+      name: username
+    });
+    await newUser.save();
+    return newUser.toObject();
   },
-  getItems: async function(query) {
-    return users;
+  getItems: async() => {
+    const docs = await UserModel.find().exec();
+    return docs.map(doc => doc.toObject());
   },
-  getItem: async function(id) {
-    return users[id];
+  getItem: async username => {
+    const condition = { name: username };
+    const doc = await UserModel.findOne(condition).exec();
+    return doc ? doc.toObject() : null;
+  },
+  deleteItem: async username => {
+    const condition = { name: username };
+    const doc = await UserModel.findOneAndDelete(condition).exec();
+    return doc ? doc.toObject() : null;
   }
 };
-
-const users = [
-  {
-    id: 1,
-    name: 'arai'
-  },
-  {
-    id: 2,
-    name: 'inoue'
-  }
-];

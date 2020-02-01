@@ -1,19 +1,23 @@
 import winston from 'winston';
 import config from 'config';
 
-const timestampFormat = 'YYYY-MM-DD HH:mm:ss';
+const timestampFormat = winston.format.timestamp({
+  format: 'YYYY-MM-DD HH:mm:ss'
+});
 
 const combineFormat = winston.format.combine(
-  winston.format.timestamp({
-    format: timestampFormat
-  }),
+  timestampFormat,
   winston.format.json()
 );
 
 const errorFormat = winston.format.combine(
-  winston.format.timestamp({
-    format: timestampFormat
-  }),
+  timestampFormat,
+  winston.format.errors({ stack: true }),
+  winston.format.simple()
+);
+
+const consoleFormat = winston.format.combine(
+  timestampFormat,
   winston.format.errors({ stack: true }),
   winston.format.simple()
 );
@@ -35,16 +39,19 @@ const logger = winston.createLogger({
 
 if (config.env !== 'production') {
   // コンソールログ出力
-  const debugFormat = winston.format.combine(
-    winston.format.timestamp({
-      format: timestampFormat
-    }),
-    winston.format.errors({ stack: true }),
-    winston.format.simple()
-  );
   logger.add(new winston.transports.Console({
-    format: debugFormat
+    format: consoleFormat
   }));
 }
 
 export default logger;
+
+/**
+ * コンソール出力以外のログを止める
+ * デバッグ用
+ */
+export const consoleOnly = () => {
+  logger.remove(
+    logger.transports.find(t => !(t instanceof winston.transports.Console))
+  );
+};

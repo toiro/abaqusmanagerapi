@@ -29,7 +29,6 @@
     "koa-response-time": "^2.1.0",
     "koa-router": "^8.0.6",
     "mongoose": "^5.8.10",
-    "sqlite3": "^4.1.1",
     "winston": "^3.2.1"
   },
   "devDependencies": {

@@ -1,6 +1,9 @@
 import supertest from 'supertest';
 import Koa from 'koa';
-import target from './users.js';
+import target from '../index.js';
+
+jest.mock('~/models/user.js');
+jest.mock('~/models/job.js');
 
 let server;
 let request;
@@ -18,17 +21,17 @@ afterAll(() => {
   server.close();
 });
 
-test('create a new user: POST /users', async() => {
+test('route to GET /v1/api/users', async() => {
   const response = await request.get('/v1/api/users');
-  expect(response.status).toEqual(200);
+  expect(response.status).toBe(200);
 });
 
-test('get users list: GET /users', async() => {
+test('route to GET /v1/api/jobs', async() => {
   const response = await request.get('/v1/api/jobs');
-  expect(response.status).toEqual(200);
+  expect(response.status).toBe(200);
 });
 
-test('get an user: GET /users/:id', async() => {
-  const response = await request.get('/v1/api/user/1');
-  expect(response.status).toEqual(200);
+test('route to path not exists return 404', async() => {
+  const response = await request.get('/v1/api/not-exists');
+  expect(response.status).toBe(404);
 });
