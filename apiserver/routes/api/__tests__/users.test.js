@@ -22,7 +22,7 @@ afterAll(() => {
 
 test('create a new user: POST /users', async() => {
   const response = await request.post('/users');
-  expect(response.status).toBe(200);
+  expect(response.status).toBe(201);
 });
 
 test('get users list: GET /users', async() => {

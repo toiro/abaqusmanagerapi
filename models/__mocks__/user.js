@@ -1,21 +1,23 @@
 export default {
-  addItem: async username => {
-    return { name: username, maxConcurrentJob: 2 };
+  addEntry: async newEntry => {
+    newEntry.maxConcurrentJob = 2;
+    return newEntry;
   },
-  getItems: async() => {
+  getEntrys: async() => {
     return [
       { name: 'ando', maxConcurrentJob: 2 },
       { name: 'inoue', maxConcurrentJob: 2 }
     ];
   },
-  getItem: async username => {
-    return username === 'ando'
-      ? { name: username, maxConcurrentJob: 2 }
+  getEntry: async identifier => {
+    return identifier.name === 'ando'
+      ? { name: identifier.name, maxConcurrentJob: 2 }
       : null;
   },
-  deleteItem: async username => {
-    return username === 'ando'
-      ? { name: username, maxConcurrentJob: 2 }
+  deleteEntry: async identifier => {
+    return identifier.name === 'ando'
+      ? { name: identifier.name, maxConcurrentJob: 2 }
       : null;
-  }
+  },
+  identifier: username => ({ name: username })
 };

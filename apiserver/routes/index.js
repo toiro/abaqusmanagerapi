@@ -1,9 +1,10 @@
 import Router from 'koa-router';
-import userRouter from './users.js';
-import jobRouter from './jobs.js';
-import authRouter from './auth.js';
+import userRouter from './api/users.js';
+import jobRouter from './api/jobs.js';
+import authRouter from './api/auth.js';
 
 const router = new Router({ prefix: '/v1/api' });
+
 router
   .use(userRouter.routes(), userRouter.allowedMethods())
   .use(jobRouter.routes(), jobRouter.allowedMethods())

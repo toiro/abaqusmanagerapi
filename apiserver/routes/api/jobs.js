@@ -12,6 +12,9 @@ router
   .get('/', async(ctx, next) => {
     ctx.body = await Job.getItems();
   })
+  .post('/import', async(ctx, next) => {
+    throw Error('not implemented yet');// TODO
+  })
   .get('/:id', async(ctx, next) => {
     ctx.body = await Job.getItem(ctx.params.id);
   })
