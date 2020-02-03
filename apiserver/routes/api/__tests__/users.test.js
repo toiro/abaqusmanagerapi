@@ -21,7 +21,7 @@ afterAll(() => {
 });
 
 test('create a new user: POST /users', async() => {
-  const response = await request.get('/users');
+  const response = await request.post('/users');
   expect(response.status).toBe(200);
 });
 

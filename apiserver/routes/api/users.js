@@ -7,9 +7,9 @@ const router = new Router({ prefix: '/users' });
 
 router
   .post('/', koaBody(), async(ctx, next) => {
-    const { content } = ctx.request.body;
+    const param = ctx.request.body;
     await tryRequest(ctx, async() => {
-      ctx.body = await User.addItem({ content });
+      ctx.body = await User.addItem(param.name);
       ctx.status = 201;
     });
   })
