@@ -20,13 +20,19 @@ router
   })
   .get('/:id', async(ctx, next) => {
     await tryRequest(ctx, async() => {
-      console.log(User.identifier);
       ctx.body = await User.getEntry(User.identifier(ctx.params.id));
+    });
+  })
+  .post('/:id', koaBody(), async(ctx, next) => {
+    const param = ctx.request.body;
+    await tryRequest(ctx, async() => {
+      ctx.body = await User.updateEntry(User.identifier(ctx.params.id), param);
     });
   })
   .delete('/:id', async(ctx, next) => {
     await tryRequest(ctx, async() => {
-      ctx.body = await User.deleteEntry(User.identifier(ctx.params.id));
+      const param = ctx.request.body;
+      ctx.body = await User.deleteEntry(User.identifier(ctx.params.id), param);
     });
   });
 

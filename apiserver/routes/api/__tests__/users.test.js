@@ -40,6 +40,14 @@ test('get a not-exists user: GET /users/:id', async() => {
   expect(response.status).toBe(204);
 });
 
+test('update an user: POST /users/:id', async() => {
+  const response = await request
+    .post('/users/inoue')
+    .send({ maxConcurrentJob: 5 });
+
+  expect(response.status).toBe(200);
+});
+
 test('delete an user: DELETE /users/:id', async() => {
   const response = await request.delete('/users/ando');
   expect(response.status).toBe(200);

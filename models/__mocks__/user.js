@@ -14,6 +14,11 @@ export default {
       ? { name: identifier.name, maxConcurrentJob: 2 }
       : null;
   },
+  updateEntry: async(identifier, updates) => {
+    const ret = updates;
+    ret.name = identifier.name;
+    return ret;
+  },
   deleteEntry: async identifier => {
     return identifier.name === 'ando'
       ? { name: identifier.name, maxConcurrentJob: 2 }

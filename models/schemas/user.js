@@ -5,7 +5,7 @@ export default new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    match: /[a-z0-9_]+/,
+    match: /^[a-z0-9_]+$/,
     minlength: 2
   },
   maxConcurrentJob: {

@@ -4,9 +4,14 @@ module.exports = {
       '@babel/preset-env',
       {
         targets: {
-          node: 'current'
+          node: true
         }
       }
     ]
-  ]
+  ],
+  env: {
+    test: {
+      plugins: ['transform-es2015-modules-commonjs']
+    }
+  }
 };

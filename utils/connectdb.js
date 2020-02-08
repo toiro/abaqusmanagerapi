@@ -1,4 +1,4 @@
-import config from 'config';
+import appconfig from 'config';
 import mongoose from 'mongoose';
 import logger from '~/utils/logger.js';
 
@@ -8,7 +8,7 @@ import logger from '~/utils/logger.js';
  * @param {function():void} onOpen
  */
 export default async() => {
-  const dbconfig = config.get('mongo');
+  const dbconfig = appconfig.get('mongo');
   const dboption = {
     useNewUrlParser: true,
     useUnifiedTopology: true

@@ -18,7 +18,7 @@ afterAll(async() => {
 });
 
 const testname = 'ando';
-test('create a new user on db', async() => {
+test.only('create a new user on db', async() => {
   await target.addEntry(target.identifier(testname));
   const newUser = await UserModel.findOne(target.identifier(testname)).exec();
   expect(newUser).not.toBeNull();
