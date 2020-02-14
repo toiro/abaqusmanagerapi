@@ -1,9 +1,19 @@
 import mongoose from 'mongoose';
-import template from './_crud-template.js';
-import schema from './schemas/config.js';
 
-export const ConfigModel = mongoose.model('Config', schema);
+const name = 'Config';
 
-const crud = template(ConfigModel, 'key');
+const schema = new mongoose.Schema({
+  key: {
+    type: String,
+    required: true,
+    unique: true,
+    match: /[a-z0-9_]+/,
+    minlength: 2
+  },
+  value: {
+    type: String,
+    required: true
+  }
+});
 
-export default crud;
+export default mongoose.model(name, schema);

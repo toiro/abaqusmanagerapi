@@ -2,8 +2,8 @@ import supertest from 'supertest';
 import Koa from 'koa';
 import target from '../index.js';
 
-jest.mock('~/models/user.js');
-jest.mock('~/models/job.js');
+jest.mock('~/apiserver/cruds/user.js');
+jest.mock('~/apiserver/cruds/job.js');
 
 let server;
 let request;

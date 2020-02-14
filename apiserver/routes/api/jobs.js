@@ -1,6 +1,6 @@
 import Router from 'koa-router';
 import koaBody from 'koa-body';
-import Job from '~/models/job.js';
+import Job from '~/apiserver/cruds/job.js';
 
 const router = new Router({ prefix: '/jobs' });
 

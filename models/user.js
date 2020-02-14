@@ -1,9 +1,22 @@
 import mongoose from 'mongoose';
-import template from './_crud-template.js';
-import schema from './schemas/user.js';
 
-export const UserModel = mongoose.model('User', schema);
+const name = 'User';
 
-const crud = template(UserModel, 'name');
+const schema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    unique: true,
+    match: /^[a-z0-9_]+$/,
+    minlength: 2
+  },
+  maxConcurrentJob: {
+    type: Number,
+    required: true,
+    default: 2,
+    min: 1,
+    max: 99
+  }
+});
 
-export default crud;
+export default mongoose.model(name, schema);

@@ -3,11 +3,13 @@ module.exports = {
     [
       '@babel/preset-env',
       {
+        modules: false,
         targets: {
-          node: true
+          node: 'current'
         }
       }
-    ]
+    ],
+    '@babel/preset-typescript'
   ],
   env: {
     test: {

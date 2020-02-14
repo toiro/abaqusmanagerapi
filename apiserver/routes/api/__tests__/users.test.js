@@ -2,7 +2,7 @@ import supertest from 'supertest';
 import Koa from 'koa';
 import target from '../users.js';
 
-jest.mock('~/models/user.js');
+jest.mock('~/apiserver/cruds/user.js');
 
 let server;
 let request;

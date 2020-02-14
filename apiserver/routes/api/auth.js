@@ -1,6 +1,6 @@
 import Router from 'koa-router';
 import koaBody from 'koa-body';
-import Config from '~/models/config.js';
+import Config from '~/apiserver/cruds/config.js';
 import { tryRequest } from '../_helper.js';
 
 const router = new Router({ prefix: '/auth' });

@@ -1,28 +1,31 @@
 import mongoose from 'mongoose';
-import schema from './schemas/job.js';
+import JobPriority from './enums/job-priority.js';
+import JobStatus from './enums/job-status.js';
 
-export const JobModel = mongoose.model('Job', schema);
+const name = 'Job';
 
-export default {
-  addItem: async username => {
-    const newUser = new JobModel({
-      name: username
-    });
-    await newUser.save();
-    return newUser.toObject();
+const schema = new mongoose.Schema({
+  owner: { type: String, required: true },
+  createdAt: { type: Date, required: true, default: Date.now },
+  description: String,
+  node: { type: String, required: true },
+  command: {
+    cpus: { type: Number, required: true },
+    options: [{
+      option: { type: String, required: true },
+      param: String
+    }]
   },
-  getItems: async() => {
-    const docs = await JobModel.find().exec();
-    return docs.map(doc => doc.toObject());
+  input: {
+    remoteDir: { type: String },
+    uploaded: { type: mongoose.Schema.Types.ObjectId, ref: 'InputFile' }
   },
-  getItem: async username => {
-    const condition = { name: username };
-    const doc = await JobModel.findOne(condition).exec();
-    return doc ? doc.toObject() : null;
-  },
-  deleteItem: async username => {
-    const condition = { name: username };
-    const doc = await JobModel.findOneAndDelete(condition).exec();
-    return doc ? doc.toObject() : null;
+  priority: { type: Number, enum: Object.values(JobPriority), default: JobPriority.Middle },
+  status: {
+    code: { type: String, required: true, default: JobStatus.Waiting },
+    message: { type: String },
+    at: { type: Date, required: true, default: Date.now }
   }
-};
+});
+
+export default mongoose.model(name, schema);

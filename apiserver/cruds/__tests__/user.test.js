@@ -1,7 +1,10 @@
 import mongoose from 'mongoose';
 import { consoleOnly } from '~/utils/logger.js';
 import connectDb from '~/utils/connectdb.js';
-import target, { UserModel } from '../user.js';
+import target from '../user.js';
+import UserModel from '~/models/user.js';
+
+jest.unmock('config');
 
 const db = mongoose.connection;
 
@@ -18,7 +21,7 @@ afterAll(async() => {
 });
 
 const testname = 'ando';
-test.only('create a new user on db', async() => {
+test('create a new user on db', async() => {
   await target.addEntry(target.identifier(testname));
   const newUser = await UserModel.findOne(target.identifier(testname)).exec();
   expect(newUser).not.toBeNull();

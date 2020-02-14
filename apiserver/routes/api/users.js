@@ -1,6 +1,6 @@
 import Router from 'koa-router';
 import koaBody from 'koa-body';
-import User from '~/models/user.js';
+import User from '~/apiserver/cruds/user.js';
 import { tryRequest } from '../_helper.js';
 
 const router = new Router({ prefix: '/users' });
