@@ -13,6 +13,11 @@ const schema = new mongoose.Schema({
   value: {
     type: String,
     required: true
+  },
+  isJson: {
+    type: Boolean,
+    required: true,
+    default: false
   }
 });
 

@@ -33,6 +33,8 @@
     "koa-response-time": "^2.1.0",
     "koa-router": "^8.0.6",
     "mongoose": "^5.8.10",
+    "node-cron": "^2.0.3",
+    "node-graceful": "^3.0.0",
     "through2": "^3.0.1",
     "winston": "^3.2.1"
   },

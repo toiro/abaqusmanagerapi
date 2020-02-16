@@ -1,5 +1,5 @@
 import JobStatus from '~/models/enums/job-status.js';
-import JobModel from '~/models/raw-models/job.js';
+import JobModel from '~/models/job.js';
 
 /**
  * @param { [string] } status 取得するジョブのステータス

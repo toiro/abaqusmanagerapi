@@ -1,13 +1,15 @@
 import Router from 'koa-router';
 import koaBody from 'koa-body';
 import Config from '~/apiserver/cruds/config.js';
+import CONFIGKEY from '~/models/enums/config-key.js';
 import { tryRequest } from '../_helper.js';
 
 const router = new Router({ prefix: '/auth' });
 
-const keys = {
-  admin: 'adminpass'
-};
+const keys = Object.freeze({
+  admin: CONFIGKEY.AdminPass,
+  priority: CONFIGKEY.PriorityPass
+});
 
 router
   .post('/', koaBody(), async(ctx, next) => {
