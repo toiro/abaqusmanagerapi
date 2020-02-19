@@ -5,7 +5,6 @@ import logger from '~/utils/logger.js';
 /**
  * config に基づいて mongoDB に接続する
  *
- * @param {function():void} onOpen
  */
 export default async() => {
   const dbconfig = appconfig.get('mongo');

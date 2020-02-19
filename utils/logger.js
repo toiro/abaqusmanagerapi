@@ -1,5 +1,8 @@
 import winston from 'winston';
 import config from 'config';
+import path from 'path';
+
+const logDir = config.log ? config.log.directory : '.';
 
 const timestampFormat = winston.format.timestamp({
   format: 'YYYY-MM-DD HH:mm:ss'
@@ -27,10 +30,10 @@ const logger = winston.createLogger({
   format: combineFormat,
   transports: [
     // 全体ログ
-    new winston.transports.File({ filename: 'combined.log' }),
+    new winston.transports.File({ filename: path.join(logDir, 'combined.log') }),
     // エラーログ
     new winston.transports.File({
-      filename: 'error.log',
+      filename: path.join(logDir, 'error.log'),
       level: 'error',
       format: errorFormat
     })

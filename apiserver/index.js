@@ -10,7 +10,9 @@ export default opts => {
   opts = opts || {};
   const app = new Koa();
 
-  if ('test' != config.get('env')) app.use(koalogger(logger));
+  if ('test' != config.get('env')) {
+    app.use(koalogger(logger));
+  }
 
   app
     .use(responseTime())

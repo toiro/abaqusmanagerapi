@@ -5,6 +5,7 @@ import JobStatus from './enums/job-status.js';
 const name = 'Job';
 
 const schema = new mongoose.Schema({
+  name: { type: String, required: true },
   owner: { type: String, required: true },
   createdAt: { type: Date, required: true, default: Date.now },
   description: String,
@@ -17,14 +18,16 @@ const schema = new mongoose.Schema({
     }]
   },
   input: {
-    remoteDir: { type: String },
+    sharedDirectoryPath: { type: String },
     uploaded: { type: mongoose.Schema.Types.ObjectId, ref: 'InputFile' }
   },
   priority: { type: Number, enum: Object.values(JobPriority), default: JobPriority.Middle },
   status: {
     code: { type: String, required: true, default: JobStatus.Waiting },
     message: { type: String },
-    at: { type: Date, required: true, default: Date.now }
+    at: { type: Date, required: true, default: Date.now },
+    executeDirectoryPath: { type: String },
+    resultDirectoryPath: { type: String }
   }
 });
 
