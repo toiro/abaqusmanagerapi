@@ -28,6 +28,7 @@
     "dateformat": "^3.0.3",
     "from2-array": "^0.0.4",
     "fs": "^0.0.1-security",
+    "iconv-lite": "^0.5.1",
     "koa": "^2.11.0",
     "koa-body": "^4.1.1",
     "koa-compress": "^3.0.0",
@@ -44,6 +45,7 @@
   "devDependencies": {
     "@babel/cli": "^7.8.3",
     "@babel/core": "^7.8.3",
+    "@babel/plugin-syntax-import-meta": "^7.8.3",
     "@babel/preset-env": "^7.8.3",
     "babel-eslint": "^10.0.3",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",

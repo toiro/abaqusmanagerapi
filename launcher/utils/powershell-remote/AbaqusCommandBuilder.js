@@ -18,9 +18,14 @@ export default class AbaqusCommandBuilder {
   setCpus(value) { this.set('cpus', value); return this; }
 
   build() {
+    console.log(this._param);
     const param = {};
     param.jobName = this._param.jobName;
-    param.inputFilePath = this._param.inputFilePath;
+    param.fileName = this._param.fileName;
+    param.workingDirName = this._param.workingDirName;
+
+    param.sourceDir = this._param.sourceDir;
+    param.destinationDir = this._param.destinationDir;
 
     const option = [];
     option.push(`cpus ${this._param.cpus}`);
@@ -33,9 +38,9 @@ export default class AbaqusCommandBuilder {
 
 const build = param => `{
   param ($Session)
-  Copy-Item –Path '${param.sourceDir}\\${param.workingDirName}\\${param.fileName}' –Destination '${param.destinationDir}\\${param.workingDirName}\\${param.fileName}' –ToSession $Session -Recurse -Force
+  Copy-Item –Path '${param.sourceDir}\\${param.workingDirName}' –Destination '${param.destinationDir}\\${param.workingDirName}' –ToSession $Session -Force -Recurse
   Invoke-Command -Session $Session -ScriptBlock  {
-  $jobName = "${param.jobname}"
+  $jobName = "${param.jobName}"
   $input = "${param.destinationDir}\\${param.fileName}"
   $option = "${param.parsedOption}"
   abaqus interactive "job=\${jobName}" "input=\${input}" \${option}

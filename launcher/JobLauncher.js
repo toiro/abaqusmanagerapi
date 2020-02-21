@@ -22,7 +22,7 @@ async function launchJob(job, emitter) {
   const workingDirName = `${job.owner}_${job.name}_${datePostfix}`;
   const localTempDir = path.join(process.cwd(), 'temp');
   // ファイルを配置する
-  const executeRootDir = 'C:\\Temp\\';
+  const executionRootDir = 'C:\\Temp\\';
 
   let inputFileName = '';
   if (job.input.uploaded) {
@@ -44,17 +44,19 @@ async function launchJob(job, emitter) {
     .setFileName(inputFileName)
     .setCpus(job.command.cpus)
     .setSourceDir(localTempDir)
-    .setDestinationDir(executeRootDir)
+    .setDestinationDir(executionRootDir)
     .setWorkingDirName(workingDirName);
   const node = {
     hostname: 'UK-X',
     user: 'lab',
-    password: 'encrypted'
+    password: '01000000d08c9ddf0115d1118c7a00c04fc297eb01000000836fb6f7f4e3e546b49f3ae2f84deef80000000002000000000010660000000100002000000038a013847f52c76a43040875b52183468263e7317e3857e4dcbe58ef93dde8b2000000000e80000000020000200000002bbd62b7e1c68ed954883c77c3a0ee5a3422d641214872c99e0aceae42f9f41a2000000052091a80118f9fa3e3879d7e3ad831f2a676944f62d7f828984f1b0da80c92b040000000ae939d2d8d3ed69fcba342fd81a3dde40de3aabdd204c386286873edb0b7bfb3d4a7c8f15d5a362a8ce866ffa5017fa0c1f47fd4f9f74a66a0bd6f88c9aaf7fc'
   };
   const psRemote = new PowerShellRemote(node.hostname, node.user, node.password, abaqusCommand.build());
   psRemote
     .on('stdout', (data, count) => {})
-    .on('stderr', data => {})
+    .on('stderr', msg => {
+      emitter.stderr += msg;
+    })
     .on('error', error => {
       emitter.emit('error', job.toObject(), error);
     })
@@ -65,5 +67,5 @@ async function launchJob(job, emitter) {
     })
     .invoke();
 
-  emitter.emit('launch', job.toObject(), path.join(executeRootDir, workingDirName));
+  emitter.emit('launch', job.toObject(), path.join(executionRootDir, workingDirName));
 };

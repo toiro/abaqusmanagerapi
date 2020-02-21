@@ -5,14 +5,16 @@ param(
   [string]$Command
 )
 
-$decripted = ConvertTo-SecureString $EncirptedPassword
-$credential = New-Object System.Management.Automation.PsCredential($username, $decripted)
-
-$session = New-PSSession -ComputerName $Hostname -Credential $credential
 try {
-  #$sb = [scriptblock]::Create("{&${Command} `$session}")
+  $decripted = ConvertTo-SecureString $EncirptedPassword
+  $credential = New-Object System.Management.Automation.PsCredential($username, $decripted)
+  $session = New-PSSession -ComputerName $Hostname -Credential $credential
   $sb = [scriptblock]::Create($Command)
   Invoke-Command -ScriptBlock {.$sb $session};
+} catch {
+  exit 1
 } finally {
-  Remove-PSSession -Session $session
+  if (-not $session -eq $null) {
+    Remove-PSSession -Session $session
+  }
 }

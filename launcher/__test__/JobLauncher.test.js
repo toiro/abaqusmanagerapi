@@ -13,6 +13,7 @@ beforeAll(async() => {
       logger.warn(`An error occured on launch ${job.owner}'s job: ${job.name}`, error);
     })
     .on('finish', (job, code, msg, resultDir) => {
+      console.log(launcher.stderr);
       if (code === 0) {
         logger.info(`Completed ${job.owner}'s job: ${job.name}`);
       } else {
@@ -48,13 +49,17 @@ test('invoke job', done => {
     toObject: function() { return this; }
   };
   launcher
-    .on('error', error => {
-      console.log(error);
-      done(error);
+    .on('stderr', msg => {
+      console.log(msg);
     })
-    .on('finish', () => {
-      console.log('OK');
-      done();
+    .on('error', (job, error) => {
+      console.log(error);
+    })
+    .on('finish', (job, code) => {
+      if (code === 0) {
+        console.log('OK');
+        done();
+      }
     })
     .launch(job);
 });
