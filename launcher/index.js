@@ -26,10 +26,11 @@ export default opt => {
     });
 
   const task = schedule.schedule('* * * * *',
-    () => {
+    async() => {
+      logger.verbose('Launcher invoked.');
       let job = null;
       do {
-        job = picker.pick();
+        job = await picker.pick();
         if (job) launcher.launch(job);
       } while (job);
       // checkJobStatus() // TODO ジョブの追跡に失敗していないかを検証する

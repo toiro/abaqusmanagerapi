@@ -40,7 +40,6 @@ graceful.on('exit', async signal => logger.info(`Recieve exit signal: ${signal}`
 
   logger.verbose(`Start listening on ${options.host}:${options.port}`);
 
-  /*
   const appLauncher = launcher();
   appLauncher.start();
   graceful.on('exit', () => appLauncher.destroy());

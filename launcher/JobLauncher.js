@@ -1,5 +1,7 @@
 import { EventEmitter } from 'events';
 import fs from 'fs';
+import path from 'path';
+import dateformat from 'dateformat';
 import PowerShellRemote from './utils/powershell-remote/PowerShellRemote.js';
 import AbaqusCommandBuilder from './utils/powershell-remote/AbaqusCommandBuilder.js';
 
@@ -14,15 +16,20 @@ export default class JobLauncher extends EventEmitter {
   }
 }
 
+const datePostfixFormat = 'yyyymmddHHMMssl';
 async function launchJob(job, emitter) {
+  const datePostfix = dateformat(Date.now(), datePostfixFormat);
+  const workingDirName = `${job.owner}_${job.name}_${datePostfix}`;
+  const localTempDir = path.join(process.cwd(), 'temp');
   // ファイルを配置する
-  const executeRootDir = '';
-  const dirName = `${job.owner}_${job.name}`;
+  const executeRootDir = 'C:\\Temp\\';
 
-  const executeDir = mkdirForceByWithNumber(`${executeRootDir}${dirName}\\`);
+  let inputFileName = '';
   if (job.input.uploaded) {
+    inputFileName = job.input.uploaded.fileName;
     // アップロードされたファイルを取得
-    fs.promises.writeFile(`${executeDir}${job.input.uploaded.fileName}`, job.input.uploaded.content);
+    await fs.promises.mkdir(path.join(localTempDir, workingDirName));
+    await fs.promises.writeFile(path.join(localTempDir, workingDirName, inputFileName), job.input.uploaded.content);
   } else if (job.input.sharedDirectoryPath) {
     // 共有ディレクトリから取得
     throw new Error('Not implemented yet');// TODO
@@ -33,9 +40,12 @@ async function launchJob(job, emitter) {
   // シェル起動は await しない
   const abaqusCommand = new AbaqusCommandBuilder();
   abaqusCommand
-    .setJobName()
-    .setInputFilePath()
-    .setCpus();
+    .setJobName(job.name)
+    .setFileName(inputFileName)
+    .setCpus(job.command.cpus)
+    .setSourceDir(localTempDir)
+    .setDestinationDir(executeRootDir)
+    .setWorkingDirName(workingDirName);
   const node = {
     hostname: 'UK-X',
     user: 'lab',
@@ -55,25 +65,5 @@ async function launchJob(job, emitter) {
     })
     .invoke();
 
-  emitter.emit('launch', job.toObject(), executeDir);
+  emitter.emit('launch', job.toObject(), path.join(executeRootDir, workingDirName));
 };
-
-async function mkdirForceByWithNumber(dirPath) {
-  let tryCount = 0;
-  while (true) {
-    try {
-      if (tryCount) {
-        dirPath = `${dirPath}_${tryCount}`;
-      }
-      await fs.promises.mkdir();
-      return dirPath;
-    } catch (error) {
-      if (error.code === 'EEXIST') {
-        // 連番を振ってリトライ
-        tryCount++;
-      } else {
-        throw error;
-      }
-    }
-  }
-}

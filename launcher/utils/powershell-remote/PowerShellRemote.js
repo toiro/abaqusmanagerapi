@@ -19,6 +19,7 @@ export default class PowerShellRemote extends EventEmitter {
   invoke() {
     const _param = this._param;
     const powerShell = childProcess.spawn('powershell', [sessionScript, _param.host, _param.user, _param.encriptedPassword, _param.script]);
+    this.emit('start', [sessionScript, _param.host, _param.user, _param.encriptedPassword, _param.script]);
     powerShell.stdout.on('data', data => {
       this._lastOutput = data.toString();
       this.emit('stdout', data, this._count);

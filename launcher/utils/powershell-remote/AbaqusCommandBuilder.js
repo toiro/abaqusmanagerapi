@@ -1,7 +1,7 @@
 
 export default class AbaqusCommandBuilder {
   constructor(param) {
-    this._param = param;
+    this._param = param || {};
   }
 
   set(key, value) {
@@ -9,9 +9,13 @@ export default class AbaqusCommandBuilder {
     return this;
   }
 
-  setJobName(value) { this.set('jobName', value); }
-  setInputFilePath(value) { this.set('inputFilePath', value); }
-  setCpus(value) { this.set('cpus', value); }
+  setSourceDir(value) { this.set('sourceDir', value); return this; }
+  setDestinationDir(value) { this.set('destinationDir', value); return this; }
+  setWorkingDirName(value) { this.set('workingDirName', value); return this; }
+
+  setFileName(value) { this.set('fileName', value); return this; }
+  setJobName(value) { this.set('jobName', value); return this; }
+  setCpus(value) { this.set('cpus', value); return this; }
 
   build() {
     const param = {};
@@ -27,14 +31,13 @@ export default class AbaqusCommandBuilder {
   }
 }
 
-const build = param => `param(
-  [System.Management.Automation.Runspaces.PSSession]$Session
-)
-
-Invoke-Command -Session $Session -ScriptBlock  {
-  $jobName = "${param.jobName}"
-  $input = "${param.inputFilePath}"
+const build = param => `{
+  param ($Session)
+  Copy-Item –Path '${param.sourceDir}\\${param.workingDirName}\\${param.fileName}' –Destination '${param.destinationDir}\\${param.workingDirName}\\${param.fileName}' –ToSession $Session -Recurse -Force
+  Invoke-Command -Session $Session -ScriptBlock  {
+  $jobName = "${param.jobname}"
+  $input = "${param.destinationDir}\\${param.fileName}"
   $option = "${param.parsedOption}"
-  abaqus "job=\${jobName}" "input=\${input}" \${option}
-}
-`;
+  abaqus interactive "job=\${jobName}" "input=\${input}" \${option}
+  }
+}`;

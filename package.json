@@ -25,6 +25,7 @@
     "@koa/multer": "^2.0.2",
     "commander": "^4.1.0",
     "config": "^3.2.5",
+    "dateformat": "^3.0.3",
     "from2-array": "^0.0.4",
     "fs": "^0.0.1-security",
     "koa": "^2.11.0",
