@@ -31,8 +31,7 @@ router
   })
   .delete('/:id', async(ctx, next) => {
     await tryRequest(ctx, async() => {
-      const param = ctx.request.body;
-      ctx.body = await User.deleteEntry(User.identifier(ctx.params.id), param);
+      ctx.body = await User.deleteEntry(User.identifier(ctx.params.id));
     });
   });
 

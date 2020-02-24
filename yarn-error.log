@@ -1,11 +1,11 @@
 Arguments: 
-  C:\Program Files (x86)\Nodist\v-x64\13.6.0\node.exe C:\Program Files (x86)\Nodist\bin\node_modules\yarn\bin\yarn.js add =D babel-eslint
+  C:\Program Files (x86)\Nodist\v-x64\13.6.0\node.exe C:\Program Files (x86)\Nodist\bin\node_modules\yarn\bin\yarn.js add mangoose-gridfs
 
 PATH: 
   C:\Python27\;C:\Python27\Scripts;C:\Program Files (x86)\Common Files\Intel\Shared Libraries\redist\intel64\compiler;C:\Program Files\NOITOM\Axis Neuron\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\Microsoft\Web Platform Installer\;C:\ProgramData\chocolatey\bin;C:\Program Files (x86)\Nodist\bin;C:\Users\toiro\AppData\Local\Microsoft\WindowsApps;C:\Users\toiro\AppData\Local\Programs\Microsoft VS Code\bin;C:\Program Files (x86)\Nodist\bin\bin;C:\Program Files\MongoDB\Server\4.2\bin;
 
 Yarn version: 
-  1.21.1
+  1.22.0
 
 Node version: 
   13.6.0
@@ -14,13 +14,13 @@ Platform:
   win32 x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/=D: Not found
-      at Request.params.callback [as _callback] (C:\Program Files (x86)\Nodist\bin\node_modules\yarn\lib\cli.js:66947:18)
-      at Request.self.callback (C:\Program Files (x86)\Nodist\bin\node_modules\yarn\lib\cli.js:140665:22)
+  Error: https://registry.yarnpkg.com/mangoose-gridfs: Not found
+      at Request.params.callback [as _callback] (C:\Program Files (x86)\Nodist\bin\node_modules\yarn\lib\cli.js:66975:18)
+      at Request.self.callback (C:\Program Files (x86)\Nodist\bin\node_modules\yarn\lib\cli.js:140727:22)
       at Request.emit (events.js:321:20)
-      at Request.<anonymous> (C:\Program Files (x86)\Nodist\bin\node_modules\yarn\lib\cli.js:141637:10)
+      at Request.<anonymous> (C:\Program Files (x86)\Nodist\bin\node_modules\yarn\lib\cli.js:141699:10)
       at Request.emit (events.js:321:20)
-      at IncomingMessage.<anonymous> (C:\Program Files (x86)\Nodist\bin\node_modules\yarn\lib\cli.js:141559:12)
+      at IncomingMessage.<anonymous> (C:\Program Files (x86)\Nodist\bin\node_modules\yarn\lib\cli.js:141621:12)
       at Object.onceWrapper (events.js:427:28)
       at IncomingMessage.emit (events.js:333:22)
       at endReadableNT (_stream_readable.js:1220:12)
@@ -54,8 +54,10 @@ npm manifest:
       "@koa/multer": "^2.0.2",
       "commander": "^4.1.0",
       "config": "^3.2.5",
+      "dateformat": "^3.0.3",
       "from2-array": "^0.0.4",
       "fs": "^0.0.1-security",
+      "iconv-lite": "^0.5.1",
       "koa": "^2.11.0",
       "koa-body": "^4.1.1",
       "koa-compress": "^3.0.0",
@@ -72,7 +74,9 @@ npm manifest:
     "devDependencies": {
       "@babel/cli": "^7.8.3",
       "@babel/core": "^7.8.3",
+      "@babel/plugin-syntax-import-meta": "^7.8.3",
       "@babel/preset-env": "^7.8.3",
+      "babel-eslint": "^10.0.3",
       "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
       "eslint": "^6.8.0",
       "eslint-config-koa": "^2.0.2",
@@ -366,7 +370,7 @@ Lockfile:
       esutils "^2.0.2"
       js-tokens "^4.0.0"
   
-  "@babel/parser@^7.1.0", "@babel/parser@^7.7.5", "@babel/parser@^7.8.3", "@babel/parser@^7.8.4":
+  "@babel/parser@^7.0.0", "@babel/parser@^7.1.0", "@babel/parser@^7.7.5", "@babel/parser@^7.8.3", "@babel/parser@^7.8.4":
     version "7.8.4"
     resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.8.4.tgz#d1dbe64691d60358a974295fa53da074dd2ce8e8"
     integrity sha512-0fKu/QqildpXmPVaRBoXOlyBb3MC+J0A66x97qEfLOMkn3u6nfY5esWogQwi/K0BjASYy4DbnsEWnpNL6qT5Mw==
@@ -456,6 +460,13 @@ Lockfile:
     integrity sha512-5gdGbFon+PszYzqs83S3E5mpi7/y/8M9eC90MRTZfduQOYW76ig6SOSPNe41IG5LoP3FGBn2N0RjVDSQiS94kQ==
     dependencies:
       "@babel/helper-plugin-utils" "^7.8.0"
+  
+  "@babel/plugin-syntax-import-meta@^7.8.3":
+    version "7.8.3"
+    resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-import-meta/-/plugin-syntax-import-meta-7.8.3.tgz#230afff79d3ccc215b5944b438e4e266daf3d84d"
+    integrity sha512-vYiGd4wQ9gx0Lngb7+bPCwQXGK/PR6FeTIJ+TIOlq+OfOKG/kCAOO2+IBac3oMM9qV7/fU76hfcqxUaLKZf1hQ==
+    dependencies:
+      "@babel/helper-plugin-utils" "^7.8.3"
   
   "@babel/plugin-syntax-json-strings@^7.8.0":
     version "7.8.3"
@@ -840,7 +851,7 @@ Lockfile:
       "@babel/parser" "^7.8.3"
       "@babel/types" "^7.8.3"
   
-  "@babel/traverse@^7.1.0", "@babel/traverse@^7.7.4", "@babel/traverse@^7.8.3", "@babel/traverse@^7.8.4":
+  "@babel/traverse@^7.0.0", "@babel/traverse@^7.1.0", "@babel/traverse@^7.7.4", "@babel/traverse@^7.8.3", "@babel/traverse@^7.8.4":
     version "7.8.4"
     resolved "https://registry.yarnpkg.com/@babel/traverse/-/traverse-7.8.4.tgz#f0845822365f9d5b0e312ed3959d3f827f869e3c"
     integrity sha512-NGLJPZwnVEyBPLI+bl9y9aSnxMhsKz42so7ApAv9D+b4vAFPpY013FTS9LdKxcABoIYFU52HcYga1pPlx454mg==
@@ -1413,6 +1424,18 @@ Lockfile:
       chalk "^1.1.3"
       esutils "^2.0.2"
       js-tokens "^3.0.2"
+  
+  babel-eslint@^10.0.3:
+    version "10.0.3"
+    resolved "https://registry.yarnpkg.com/babel-eslint/-/babel-eslint-10.0.3.tgz#81a2c669be0f205e19462fed2482d33e4687a88a"
+    integrity sha512-z3U7eMY6r/3f3/JB9mTsLjyxrv0Yb1zb8PCWCLpguxfCzBIZUwy23R1t/XKewP+8mEN2Ck8Dtr4q20z6ce6SoA==
+    dependencies:
+      "@babel/code-frame" "^7.0.0"
+      "@babel/parser" "^7.0.0"
+      "@babel/traverse" "^7.0.0"
+      "@babel/types" "^7.0.0"
+      eslint-visitor-keys "^1.0.0"
+      resolve "^1.12.0"
   
   babel-jest@^25.1.0:
     version "25.1.0"
@@ -2053,6 +2076,11 @@ Lockfile:
       whatwg-mimetype "^2.2.0"
       whatwg-url "^7.0.0"
   
+  dateformat@^3.0.3:
+    version "3.0.3"
+    resolved "https://registry.yarnpkg.com/dateformat/-/dateformat-3.0.3.tgz#a6e37499a4d9a9cf85ef5872044d62901c9889ae"
+    integrity sha512-jyCETtSl3VMZMWeRo7iY1FL19ges1t55hMo5yaam4Jrsm5EPL89UQkoQRyiI+Yf4k8r2ZpdngkV8hr1lIdjb3Q==
+  
   debug@3.1.0, debug@~3.1.0:
     version "3.1.0"
     resolved "https://registry.yarnpkg.com/debug/-/debug-3.1.0.tgz#5bb5a0672628b64149566ba16819e61518c67261"
@@ -2420,7 +2448,7 @@ Lockfile:
     dependencies:
       eslint-visitor-keys "^1.1.0"
   
-  eslint-visitor-keys@^1.1.0:
+  eslint-visitor-keys@^1.0.0, eslint-visitor-keys@^1.1.0:
     version "1.1.0"
     resolved "https://registry.yarnpkg.com/eslint-visitor-keys/-/eslint-visitor-keys-1.1.0.tgz#e2a82cea84ff246ad6fb57f9bde5b46621459ec2"
     integrity sha512-8y9YjtM1JBJU/A9Kc+SbaOV4y29sSWckBwMHa+FGtVj5gN/sbnKDf6xJUl+8g7FAij9LVaP8C24DUiH/f/2Z9A==
@@ -3035,6 +3063,13 @@ Lockfile:
     version "0.4.24"
     resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.4.24.tgz#2022b4b25fbddc21d2f524974a474aafe733908b"
     integrity sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==
+    dependencies:
+      safer-buffer ">= 2.1.2 < 3"
+  
+  iconv-lite@^0.5.1:
+    version "0.5.1"
+    resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.5.1.tgz#b2425d3c7b18f7219f2ca663d103bddb91718d64"
+    integrity sha512-ONHr16SQvKZNSqjQT9gy5z24Jw+uqfO02/ngBSBoqChZ+W8qXX7GPRa1RoUnzGADw8K63R1BXUMzarCVQBpY8Q==
     dependencies:
       safer-buffer ">= 2.1.2 < 3"
   

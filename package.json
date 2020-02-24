@@ -26,7 +26,6 @@
     "commander": "^4.1.0",
     "config": "^3.2.5",
     "dateformat": "^3.0.3",
-    "from2-array": "^0.0.4",
     "fs": "^0.0.1-security",
     "iconv-lite": "^0.5.1",
     "koa": "^2.11.0",
@@ -37,9 +36,9 @@
     "koa-router": "^8.0.6",
     "mongoose": "^5.8.10",
     "multer": "^1.4.2",
+    "multer-gridfs-storage": "^4.0.2",
     "node-cron": "^2.0.3",
     "node-graceful": "^3.0.0",
-    "through2": "^3.0.1",
     "winston": "^3.2.1"
   },
   "devDependencies": {

@@ -19,7 +19,7 @@ const schema = new mongoose.Schema({
   },
   input: {
     sharedDirectoryPath: { type: String },
-    uploaded: { type: mongoose.Schema.Types.ObjectId, ref: 'InputFile' }
+    uploaded: { type: mongoose.Schema.Types.ObjectId }
   },
   priority: { type: Number, enum: Object.values(JobPriority), default: JobPriority.Middle },
   status: {

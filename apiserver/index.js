@@ -13,6 +13,9 @@ export default opts => {
   if ('test' != config.get('env')) {
     app.use(koalogger(logger));
   }
+  app.on('error', (err, ctx) => {
+    logger.error(ctx.body, err);
+  });
 
   app
     .use(responseTime())
