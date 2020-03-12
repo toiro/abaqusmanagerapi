@@ -1,71 +1,80 @@
-import { EventEmitter } from 'events';
 import * as queries from './utils/queries.js';
 import STATUS from '~/models/enums/job-status.js';
 import CONFIGKEY from '~/models/enums/config-key.js';
 import storedConfig from '~/utils/storedConfig.js';
 import UserModel from '~/models/user.js';
+import NodeModel from '~/models/node.js';
 
-export default class JobPicker extends EventEmitter {
-  constructor() {
-    super();
-    this.jobMaxForNodes = {};
-    this.availableToken = 0;
-  }
-
-  async init() {
-    this.jobMaxForNodes = await storedConfig.get(CONFIGKEY.JobMaxForNodes);
-    this.availableToken = await storedConfig.get(CONFIGKEY.AvailableTokenCount);
-    this.emit('initialized');
-    // const remainToken // TODO 実際に残っているトークン
+export default class JobPicker {
+  async _init() {
+    const criteria = new JobPickCriteria();
+    await criteria.init();
+    this._getStartingJobs = (waitingJobs, runningJobs) => criteria.judge(waitingJobs, runningJobs);
     return this;
   }
 
   async pick() {
-    // Waiting のジョブを取得する
+    await this._init();
+
+    // Waiting のジョブを取得し、priority - createdAt 順に並べる
     const waitingJobs = await queries.jobsOn(STATUS.Waiting);
     if (waitingJobs.length === 0) return null;
-
-    // priority - createdAt 順に並べる
     waitingJobs.sort((a, b) => a.priority !== b.priority ? a.priority - b.priority : a.createdAt - b.createdAt);
 
-    // 起動条件を満たすジョブを選択する
     const runningJobs = await queries.jobsOn(STATUS.Running);
-    const allowPassing = false; // TODO add to config
-    if (allowPassing) {
-      return this._isReadyToLaunch(waitingJobs[0], runningJobs) ? waitingJobs[0] : null;
-    } else {
-      for (const job in waitingJobs) {
-        if (await this._isReadyToLaunch(job, runningJobs)) {
-          this.emit('pick', job);
-          return job;
-        }
-      }
-    }
+
+    // 起動条件を満たすジョブを選択する
+    return this._getStartingJobs(waitingJobs, runningJobs);
+  }
+}
+
+class JobPickCriteria {
+  async init() {
+    this.users = (await UserModel.find().exec()).reduce((map, user) => {
+      map[user.name] = user;
+      return map;
+    }, {});
+    this.nodes = (await NodeModel.find().exec()).reduce((map, node) => {
+      map[node.hostname] = node;
+      return map;
+    }, {});
+    this.availableToken = await storedConfig.get(CONFIGKEY.AvailableTokenCount);
   }
 
-  async _isReadyToLaunch(job, runningJobs) {
-    const node = job.node;
-    const owner = job.owner;
-    const maxConcurrentJobForUser = getMaxConcurrentJobForUser(owner);
+  judge(waitingJobs, runningJobs) {
+    const startingJobs = [];
 
-    const nodeCount = runningJobs.filter(_ => _.node == node).length;
-    const ownerCount = runningJobs.filter(_ => _.owner === owner).length;
-    const tokenToClaim = sumTokenToClaime([job]);
-    const tokenInUse = sumTokenToClaime(runningJobs);
+    for (const job of waitingJobs) {
+      if (this.judgeJob(job, runningJobs.concat(startingJobs))) {
+        startingJobs.push(job);
+      }
+    }
 
-    if (nodeCount > this.jobMaxForNodes[job.node]) return false;
-    if (ownerCount > maxConcurrentJobForUser) return false;
+    return startingJobs;
+  }
+
+  judgeJob(job, runningJobs) {
+    // ユーザー同時実行数
+    const maxConcurrentJobForUser = this.users[job.owner] ? this.users[job.owner].maxConcurrentJob : 0;
+    const ownerCount = runningJobs.filter(_ => _.owner === job.owner).length;
+    if (ownerCount + 1 > maxConcurrentJobForUser) return false;
+
+    // サーバー同時実行数
+    const maxConcurrentJobForNode = this.nodes[job.node].maxConcurrentJob;
+    const nodeCount = runningJobs.filter(_ => _.node == job.node).length;
+    if (nodeCount + 1 > maxConcurrentJobForNode) return false;
+
+    // ライセンス
+    /*
+    const tokenToClaim = this.sumTokenToClaime([job]);
+    const tokenInUse = this.sumTokenToClaime(runningJobs);
     if (tokenToClaim > this.availableToken - tokenInUse) return false;
+    // */
 
     return true;
-  };
-}
+  }
 
-async function getMaxConcurrentJobForUser(name) {
-  const doc = await UserModel.find({ name }).exec();
-  return doc.maxConcurrentJob;
-}
-
-function sumTokenToClaime(jobs) {
-  return 100; // TODO
+  sumTokenToClaime(jobs) {
+    return 100; // TODO
+  }
 }

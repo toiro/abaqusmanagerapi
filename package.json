@@ -39,6 +39,7 @@
     "multer-gridfs-storage": "^4.0.2",
     "node-cron": "^2.0.3",
     "node-graceful": "^3.0.0",
+    "winser": "^1.0.3",
     "winston": "^3.2.1"
   },
   "devDependencies": {

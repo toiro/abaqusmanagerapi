@@ -5,6 +5,7 @@ param(
   [string]$Command
 )
 
+$ErrorActionPreference = 'Continue'
 try {
   $decripted = ConvertTo-SecureString $EncirptedPassword
   $credential = New-Object System.Management.Automation.PsCredential($username, $decripted)

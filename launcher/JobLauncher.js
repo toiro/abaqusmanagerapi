@@ -2,8 +2,8 @@ import { EventEmitter } from 'events';
 import fs from 'fs';
 import path from 'path';
 import dateformat from 'dateformat';
-import PowerShellRemote from './utils/powershell-remote/PowerShellRemote.js';
-import AbaqusCommandBuilder from './utils/powershell-remote/AbaqusCommandBuilder.js';
+import PowerShellRemote from '~/utils/powershell-remote/PowerShellRemote.js';
+import AbaqusCommandBuilder from '~/utils/powershell-remote/AbaqusCommandBuilder.js';
 
 export default class JobLauncher extends EventEmitter {
   // constructor () {super();};

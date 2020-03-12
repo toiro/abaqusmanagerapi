@@ -5,7 +5,6 @@ import CONFIGKEY from '~/models/enums/config-key.js';
 // DB に保存する設定の基準は、動作中に UI から設定を変更される、あるいは変更できることが望ましいこと
 
 export const definitions = {};
-definitions[CONFIGKEY.JobMaxForNodes] = { isJson: true, default: { node1: 10, node2: 20 } };
 definitions[CONFIGKEY.AdminPass] = { isJson: false, default: 'passa' };
 definitions[CONFIGKEY.PriorityPass] = { isJson: false, default: 'passp' };
 

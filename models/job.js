@@ -26,6 +26,7 @@ const schema = new mongoose.Schema({
     code: { type: String, required: true, default: JobStatus.Waiting },
     message: { type: String },
     at: { type: Date, required: true, default: Date.now },
+    licenseInUse: { type: Number },
     executeDirectoryPath: { type: String },
     resultDirectoryPath: { type: String }
   }

@@ -4,8 +4,9 @@ import JobPicker from './JobPicker.js';
 import JobLauncher from './JobLauncher.js';
 import jobStatusReciever from './utils/JobStatuRecieverSingleton.js';
 
-export default opt => {
+export default async opt => {
   const picker = new JobPicker();
+
   const launcher = new JobLauncher()
     .on('launch', (job, executeDir) => {
       logger.info(`Start ${job.owner}'s job: ${job.name}`);
@@ -27,12 +28,11 @@ export default opt => {
 
   const task = schedule.schedule('* * * * *',
     async() => {
-      logger.verbose('Launcher invoked.');
-      let job = null;
-      do {
-        job = await picker.pick();
-        if (job) launcher.launch(job);
-      } while (job);
+      const jobs = await picker.pick();
+      for (const job of jobs) {
+        logger.verbose(`Starting ${job.owner}'s job: ${job.name}`);
+        // launcher.launch(job)
+      }
       // checkJobStatus() // TODO ジョブの追跡に失敗していないかを検証する
     },
     {

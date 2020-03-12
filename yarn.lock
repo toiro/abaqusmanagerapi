@@ -1288,6 +1288,11 @@ async-each@^1.0.1:
   resolved "https://registry.yarnpkg.com/async-each/-/async-each-1.0.3.tgz#b727dbf87d7651602f06f4d4ac387f47d91b0cbf"
   integrity sha512-z/WhQ5FPySLdvREByI2vZiTWwCnF0moMJ1hK9YQwDTHKh6I7/uSckMetoRGb5UBZPC1z0jlw+n/XCgjeH7y1AQ==
 
+async@0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/async/-/async-0.9.0.tgz#ac3613b1da9bed1b47510bb4651b8931e47146c7"
+  integrity sha1-rDYTsdqb7RtHUQu0ZRuJMeRxRsc=
+
 async@^2.6.1:
   version "2.6.3"
   resolved "https://registry.yarnpkg.com/async/-/async-2.6.3.tgz#d72625e2344a3656e3a3ad4fa749fa83299d82ff"
@@ -5404,6 +5409,11 @@ static-extend@^0.1.1:
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-1.5.0.tgz#161c7dac177659fd9811f43771fa99381478628c"
   integrity sha1-Fhx9rBd2Wf2YEfQ3cfqZOBR4Yow=
 
+stdio@0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/stdio/-/stdio-0.2.2.tgz#3a2259ee1644fb8578e5f6866fe872a03bbb3cce"
+  integrity sha1-OiJZ7hZE+4V45faGb+hyoDu7PM4=
+
 stealthy-require@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/stealthy-require/-/stealthy-require-1.1.1.tgz#35b09875b4ff49f26a777e509b3090a3226bf24b"
@@ -5987,6 +5997,14 @@ which@^2.0.1:
   integrity sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==
   dependencies:
     isexe "^2.0.0"
+
+winser@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/winser/-/winser-1.0.3.tgz#4ebacff96a7e5b46d47684773f4bf77239a379cf"
+  integrity sha1-TrrP+Wp+W0bUdoR3P0v3cjmjec8=
+  dependencies:
+    async "0.9.0"
+    stdio "0.2.2"
 
 winston-transport@^4.3.0:
   version "4.3.0"

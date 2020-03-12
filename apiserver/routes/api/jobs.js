@@ -1,8 +1,11 @@
+import path from 'path';
 import Router from 'koa-router';
 import koaBody from 'koa-body';
 import gridfs from '~/utils/gridfs-promise.js';
 import Job from '~/apiserver/cruds/job.js';
 import { tryRequest } from '../_helper.js';
+import getContentFromRemote from '~/utils/powershell-remote/getContentFromRemote.js';
+import NodeModel from '~/models/node.js';
 
 const router = new Router({ prefix: '/jobs' });
 
@@ -42,16 +45,54 @@ router
     });
   })
   .get('/:id/sta', async(ctx, next) => {
-    throw Error('not implemented yet');// TODO
+    await tryRequest(ctx, async() => {
+      const content = await getJobOutputFile(await Job.getEntry(ctx.params.id), 'sta');
+      if (content) {
+        ctx.body = content;
+      } else {
+        ctx.status = 204;
+      }
+    });
   })
   .get('/:id/dat', async(ctx, next) => {
-    throw Error('not implemented yet');// TODO
+    await tryRequest(ctx, async() => {
+      const content = await getJobOutputFile(await Job.getEntry(ctx.params.id), 'dat');
+      if (content) {
+        ctx.body = content;
+      } else {
+        ctx.status = 204;
+      }
+    });
   })
   .get('/:id/log', async(ctx, next) => {
-    throw Error('not implemented yet');// TODO
+    await tryRequest(ctx, async() => {
+      const content = await getJobOutputFile(await Job.getEntry(ctx.params.id), 'log');
+      if (content) {
+        ctx.body = content;
+      } else {
+        ctx.status = 204;
+      }
+    });
   })
   .get('/:id/msg', async(ctx, next) => {
-    throw Error('not implemented yet');// TODO
+    await tryRequest(ctx, async() => {
+      const content = await getJobOutputFile(await Job.getEntry(ctx.params.id), 'msg');
+      if (content) {
+        ctx.body = content;
+      } else {
+        ctx.status = 204;
+      }
+    });
   });
 
 export default router;
+
+async function getJobOutputFile(job, ext) {
+  const dir = job.status.executeDirectoryPath;
+  if (!dir) return null;
+
+  const filename = 'TODO'; // TODO ファイル名は何をもとにしている？
+  const node = (await NodeModel.findOne({ hostname: job.node })).toObject();
+  const filepath = path.join(dir, `${filename}.${ext}`);
+  return getContentFromRemote(node, filepath);
+}
