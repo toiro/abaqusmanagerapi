@@ -79,7 +79,7 @@ export function getStdout(hostname, user, encPass, command, parser) {
         .on('stdout', (line, count) => { content += line; })
         .on('stderr', line => { errorout += line; })
         .on('finish', code => {
-          if (code === 0) { resolve(parser ? parser(content) : content); } else { reject(new Error(errorout)); }
+          if (code === 0) { resolve(parser ? parser(content) : content); } else { reject(new Error(command, errorout)); }
         })
         .invoke();
     }

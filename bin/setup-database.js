@@ -1,29 +1,21 @@
 import connectDb from '~/utils/connectdb.js';
-import storedConfig from '~/utils/storedConfig.js';
-import ConfigModel from '~/models/config.js';
+import { createConfigsFromDef } from '~/utils/storedConfig.js';
 import NodeModel from '~/models/node.js';
 
 (async() => {
   await connectDb();
 
   // Configs
-  for (const key of Object.keys(storedConfig.definitions)) {
-    const definition = storedConfig.definitions.key;
-    const config = new ConfigModel();
-    config.key = key;
-    config.isJson = definition.isJson;
-    config.value = definition.default;
-    await config.save();
-  }
+  await createConfigsFromDef();
 
   // Nodes
   const nodeDefs = [
     {
       hostname: 'UK-X',
       maxConcurrentJob: 10,
-      executeDirectoryRoot: 'C:\\temp',
-      resultDirectoryRoot: 'C:\\temp',
-      importDirectoryRoot: 'C:\\temp',
+      executeDirectoryRoot: 'C:\\temp\\abaqus',
+      resultDirectoryRoot: 'D:\\abaqus_results',
+      importDirectoryRoot: 'C:\\Users\\lab\\Desktop\\AbaqusController\\abaqus_input',
       winrmCredential: {
         user: 'lab',
         encryptedPassword: 'xxxx'

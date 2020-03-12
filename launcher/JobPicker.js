@@ -18,7 +18,7 @@ export default class JobPicker {
 
     // Waiting のジョブを取得し、priority - createdAt 順に並べる
     const waitingJobs = await queries.jobsOn(STATUS.Waiting);
-    if (waitingJobs.length === 0) return null;
+    if (waitingJobs.length === 0) return [];
     waitingJobs.sort((a, b) => a.priority !== b.priority ? a.priority - b.priority : a.createdAt - b.createdAt);
 
     const runningJobs = await queries.jobsOn(STATUS.Running);

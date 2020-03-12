@@ -24,7 +24,8 @@ router
   })
   .get('/:id', async(ctx, next) => {
     await tryRequest(ctx, async() => {
-      ctx.body = await Job.getEntry(ctx.params.id);
+      const condition = Job.identifier(ctx.params.id);
+      ctx.body = await Job.getEntry(condition);
     });
   })
   .delete('/:id', async(ctx, next) => {
@@ -46,7 +47,7 @@ router
   })
   .get('/:id/sta', async(ctx, next) => {
     await tryRequest(ctx, async() => {
-      const content = await getJobOutputFile(await Job.getEntry(ctx.params.id), 'sta');
+      const content = await getJobOutputFile(ctx.params.id, 'sta');
       if (content) {
         ctx.body = content;
       } else {
@@ -56,7 +57,7 @@ router
   })
   .get('/:id/dat', async(ctx, next) => {
     await tryRequest(ctx, async() => {
-      const content = await getJobOutputFile(await Job.getEntry(ctx.params.id), 'dat');
+      const content = await getJobOutputFile(ctx.params.id, 'dat');
       if (content) {
         ctx.body = content;
       } else {
@@ -66,7 +67,7 @@ router
   })
   .get('/:id/log', async(ctx, next) => {
     await tryRequest(ctx, async() => {
-      const content = await getJobOutputFile(await Job.getEntry(ctx.params.id), 'log');
+      const content = await getJobOutputFile(ctx.params.id, 'log');
       if (content) {
         ctx.body = content;
       } else {
@@ -76,7 +77,7 @@ router
   })
   .get('/:id/msg', async(ctx, next) => {
     await tryRequest(ctx, async() => {
-      const content = await getJobOutputFile(await Job.getEntry(ctx.params.id), 'msg');
+      const content = await getJobOutputFile(ctx.params.id, 'msg');
       if (content) {
         ctx.body = content;
       } else {
@@ -87,12 +88,16 @@ router
 
 export default router;
 
-async function getJobOutputFile(job, ext) {
-  const dir = job.status.executeDirectoryPath;
+async function getJobOutputFile(jobId, ext) {
+  const condition = Job.identifier(jobId);
+  const job = await Job.getEntry(condition);
+
+  const dir = job.status.resultDirectoryPath || job.status.executeDirectoryPath || null;
   if (!dir) return null;
 
-  const filename = 'TODO'; // TODO ファイル名は何をもとにしている？
+  const filename = `${job.name}.${ext}`;
   const node = (await NodeModel.findOne({ hostname: job.node })).toObject();
-  const filepath = path.join(dir, `${filename}.${ext}`);
+  const filepath = path.join(dir, filename);
+  console.log(filepath);
   return getContentFromRemote(node, filepath);
 }

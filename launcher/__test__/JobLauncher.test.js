@@ -13,7 +13,6 @@ beforeAll(async() => {
       logger.warn(`An error occured on launch ${job.owner}'s job: ${job.name}`, error);
     })
     .on('finish', (job, code, msg, resultDir) => {
-      console.log(launcher.stderr);
       if (code === 0) {
         logger.info(`Completed ${job.owner}'s job: ${job.name}`);
       } else {

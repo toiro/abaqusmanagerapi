@@ -7,7 +7,7 @@ const gridfs = new mongoose.mongo.GridFSBucket(mongoose.connection.db, { bucketN
 
 export default {
   delete(id) {
-    const oId = mongoose.Types.ObjectId(id);
+    const oId = wrapId(id);
     return new Promise((resolve, reject) => {
       gridfs.delete(oId, error => {
         if (error !== null) {
@@ -19,7 +19,7 @@ export default {
     });
   },
   findById(id) {
-    const oId = mongoose.Types.ObjectId(id);
+    const oId = wrapId(id);
     return new Promise((resolve, reject) => {
       gridfs
         .find({
@@ -35,7 +35,7 @@ export default {
     });
   },
   openDownloadStream(id) {
-    const oId = mongoose.Types.ObjectId(id);
+    const oId = wrapId(id);
     return new Promise((resolve, reject) => {
       // 存在チェック
       gridfs
@@ -53,3 +53,8 @@ export default {
     });
   }
 };
+
+function wrapId(id) {
+  if (typeof id === 'string') return mongoose.Types.ObjectId(id);
+  return id;
+}

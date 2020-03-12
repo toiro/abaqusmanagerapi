@@ -4,6 +4,9 @@ import path from 'path';
 import dateformat from 'dateformat';
 import PowerShellRemote from '~/utils/powershell-remote/PowerShellRemote.js';
 import AbaqusCommandBuilder from '~/utils/powershell-remote/AbaqusCommandBuilder.js';
+import NodeModel from '~/models/node.js';
+import sendFile from '~/utils/powershell-remote/sendFile.js';
+import moveDirectory from '~/utils/powershell-remote/moveDirectory.js';
 
 export default class JobLauncher extends EventEmitter {
   // constructor () {super();};
@@ -18,18 +21,27 @@ export default class JobLauncher extends EventEmitter {
 
 const datePostfixFormat = 'yyyymmddHHMMssl';
 async function launchJob(job, emitter) {
+  const gridfs = (await import('~/utils/gridfs-promise.js')).default;
+
   const datePostfix = dateformat(Date.now(), datePostfixFormat);
   const workingDirName = `${job.owner}_${job.name}_${datePostfix}`;
   const localTempDir = path.join(process.cwd(), 'temp');
   // ファイルを配置する
-  const executionRootDir = 'C:\\Temp\\';
+  const node = (await NodeModel.findOne({ hostname: job.node }).exec()).toObject();
 
   let inputFileName = '';
   if (job.input.uploaded) {
-    inputFileName = job.input.uploaded.fileName;
-    // アップロードされたファイルを取得
+    const meta = await gridfs.findById(job.input.uploaded);
+    inputFileName = meta.filename;
+
+    // アップロードされたファイルをローカルtempに配置
     await fs.promises.mkdir(path.join(localTempDir, workingDirName));
-    await fs.promises.writeFile(path.join(localTempDir, workingDirName, inputFileName), job.input.uploaded.content);
+    const readStream = await gridfs.openDownloadStream(job.input.uploaded);
+    const writeStream = fs.createWriteStream(path.join(localTempDir, workingDirName, inputFileName));
+    readStream.pipe(writeStream);
+
+    // ノードにファイルを配置
+    await sendFile(node, path.join(localTempDir, workingDirName), node.executeDirectoryRoot);
   } else if (job.input.sharedDirectoryPath) {
     // 共有ディレクトリから取得
     throw new Error('Not implemented yet');// TODO
@@ -43,29 +55,28 @@ async function launchJob(job, emitter) {
     .setJobName(job.name)
     .setFileName(inputFileName)
     .setCpus(job.command.cpus)
-    .setSourceDir(localTempDir)
-    .setDestinationDir(executionRootDir)
+    .setExecuteDirRoot(node.executeDirectoryRoot)
     .setWorkingDirName(workingDirName);
-  const node = {
-    hostname: 'UK-X',
-    user: 'lab',
-    password: '01000000d08c9ddf0115d1118c7a00c04fc297eb01000000836fb6f7f4e3e546b49f3ae2f84deef80000000002000000000010660000000100002000000038a013847f52c76a43040875b52183468263e7317e3857e4dcbe58ef93dde8b2000000000e80000000020000200000002bbd62b7e1c68ed954883c77c3a0ee5a3422d641214872c99e0aceae42f9f41a2000000052091a80118f9fa3e3879d7e3ad831f2a676944f62d7f828984f1b0da80c92b040000000ae939d2d8d3ed69fcba342fd81a3dde40de3aabdd204c386286873edb0b7bfb3d4a7c8f15d5a362a8ce866ffa5017fa0c1f47fd4f9f74a66a0bd6f88c9aaf7fc'
-  };
-  const psRemote = new PowerShellRemote(node.hostname, node.user, node.password, abaqusCommand.build());
+
+  const psRemote = new PowerShellRemote(node.hostname, node.winrmCredential.user, node.winrmCredential.encryptedPassword, abaqusCommand.build());
   psRemote
-    .on('stdout', (data, count) => {})
+    .on('stdout', (data, count) => {
+    })
     .on('stderr', msg => {
+      if (!emitter.stderr) emitter.stderr = '';
       emitter.stderr += msg;
     })
     .on('error', error => {
       emitter.emit('error', job.toObject(), error);
     })
     .on('finish', (code, lastStdOut) => {
-      // TODO ファイルを結果ディレクトリに移動する
-      const resultDir = '';
-      emitter.emit('finish', job.toObject(), code, lastStdOut, resultDir);
+      const resultDir = path.join(node.resultDirectoryRoot, job.owner, workingDirName);
+      moveDirectory(node, path.join(node.executeDirectoryRoot, workingDirName), path.join(node.resultDirectoryRoot, job.owner));
+
+      const msg = (code !== 0 && emitter.stderr) ? emitter.stderr : lastStdOut;
+      emitter.emit('finish', job.toObject(), code, msg, resultDir);
     })
     .invoke();
 
-  emitter.emit('launch', job.toObject(), path.join(executionRootDir, workingDirName));
+  emitter.emit('launch', job.toObject(), path.join(node.executeDirectoryRoot, workingDirName));
 };
