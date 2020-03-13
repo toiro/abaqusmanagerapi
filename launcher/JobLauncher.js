@@ -10,9 +10,9 @@ import moveDirectory from '~/utils/powershell-remote/commands/moveDirectory.js';
 
 export default class JobLauncher extends EventEmitter {
   // constructor () {super();};
-  launch(job) {
+  async launch(job) {
     try {
-      launchJob(job, this);
+      await launchJob(job, this);
     } catch (error) {
       this.emit('error', job.toObject(), error);
     }

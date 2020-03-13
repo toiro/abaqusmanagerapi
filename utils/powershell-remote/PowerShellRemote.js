@@ -9,7 +9,7 @@ const scriptDirectory = scriptDir(import.meta);
 // const scriptDirectory = 'C:\\Users\\toiro\\Documents\\Project\\AbaqusManager\\abaqusmanagerapi\\utils\\powershell-remote';
 const sessionScript = '.\\ps-scripts\\winrm-session.ps1';
 
-const encode = 'UTF8';
+const SHELL_ENCODE = 'sjis';
 
 export default class PowerShellRemote extends EventEmitter {
   constructor(host, user, encriptedPassword, script) {
@@ -32,11 +32,11 @@ export default class PowerShellRemote extends EventEmitter {
     this.emit('start', [sessionScript, _param.host, _param.user, _param.encriptedPassword, _param.script]);
     powerShell.stdout.on('data', data => {
       this._lastOutput = data.toString();
-      this.emit('stdout', iconv.decode(data, encode), this._count);
+      this.emit('stdout', iconv.decode(data, SHELL_ENCODE), this._count);
       this._count++;
     });
     powerShell.stderr.on('data', data => {
-      this.emit('stderr', iconv.decode(data, encode));
+      this.emit('stderr', iconv.decode(data, SHELL_ENCODE));
     });
     powerShell.on('error', error => {
       this.emit('error', error);

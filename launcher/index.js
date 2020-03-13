@@ -17,7 +17,8 @@ export default async opt => {
       jobStatusReciever.errored(job, error.msg);
     })
     .on('finish', (job, code, msg, resultDir) => {
-      // abaqus は「Abaqus の解析はエラーのため終了しました.」というメッセージで終了しても、終了コードは
+      // abaqus は「Abaqus の解析はエラーのため終了しました.」というメッセージで終了しても、終了コードは 0
+      // なので最終標準出力の内容で完了したかどうかを判定する
       if (msg.match(/Abaqus JOB [^ ]* COMPLETED/)) {
         logger.info(`Completed ${job.owner}'s job: ${job.name}`);
         jobStatusReciever.completed(job, msg, resultDir);
@@ -27,11 +28,13 @@ export default async opt => {
       }
     });
 
-  const task = schedule.schedule('* * * * *',
+  // 10秒間隔で実行
+  const task = schedule.schedule('*/10 * * * * *',
     async() => {
       const jobs = await picker.pick();
       for (const job of jobs) {
-        logger.verbose(`Starting ${job.owner}'s job: ${job.name}`);
+        logger.verbose(`Pick ${job.owner}'s job: ${job.name}`);
+        // 非同期に実行
         launcher.launch(job);
       }
       // checkJobStatus() // TODO ジョブの追跡に失敗していないかを検証する
