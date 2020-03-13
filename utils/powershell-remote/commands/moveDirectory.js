@@ -1,4 +1,4 @@
-import { getStdout } from './PowerShellRemote.js';
+import { getStdout } from '../PowerShellRemote.js';
 
 export default async function listUserFolders(node, sorceDir, destDir, newName) {
   return getStdout(node.hostname, node.winrmCredential.user, node.winrmCredential.encryptedPassword, build(sorceDir, destDir, newName));

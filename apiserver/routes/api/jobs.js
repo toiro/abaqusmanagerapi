@@ -4,7 +4,7 @@ import koaBody from 'koa-body';
 import gridfs from '~/utils/gridfs-promise.js';
 import Job from '~/apiserver/cruds/job.js';
 import { tryRequest } from '../_helper.js';
-import getContentFromRemote from '~/utils/powershell-remote/getContentFromRemote.js';
+import getContentFromRemote from '~/utils/powershell-remote/commands/getContentFromRemote.js';
 import NodeModel from '~/models/node.js';
 
 const router = new Router({ prefix: '/jobs' });
@@ -98,6 +98,5 @@ async function getJobOutputFile(jobId, ext) {
   const filename = `${job.name}.${ext}`;
   const node = (await NodeModel.findOne({ hostname: job.node })).toObject();
   const filepath = path.join(dir, filename);
-  console.log(filepath);
   return getContentFromRemote(node, filepath);
 }

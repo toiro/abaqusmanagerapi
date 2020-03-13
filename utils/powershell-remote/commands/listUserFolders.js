@@ -1,4 +1,4 @@
-import { getJSON } from './PowerShellRemote.js';
+import { getJSON } from '../PowerShellRemote.js';
 
 export default async function listUserFolders(node) {
   return getJSON(node.hostname, node.winrmCredential.user, node.winrmCredential.encryptedPassword, build(node.importDirectoryRoot));
