@@ -34,6 +34,7 @@ export default async opt => {
       const jobs = await picker.pick();
       for (const job of jobs) {
         logger.verbose(`Pick ${job.owner}'s job: ${job.name}`);
+        jobStatusReciever.starting(job);
         // 非同期に実行
         launcher.launch(job);
       }

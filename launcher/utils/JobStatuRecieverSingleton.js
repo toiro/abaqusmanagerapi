@@ -24,6 +24,10 @@ class JobStatusReciever extends EventEmitter {
     this.emit('update', job, STATUS.Waiting);
   }
 
+  starting(job) {
+    this.emit('update', job, STATUS.Starting);
+  }
+
   running(job, executeDirectoryPath) {
     this.emit('update', job, STATUS.Running, { executeDirectoryPath });
   }
