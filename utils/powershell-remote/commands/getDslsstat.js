@@ -1,10 +1,10 @@
 import { getJSON } from '../PowerShellRemote.js';
 
-export default async function getDslsstat(node, path) {
-  return getJSON(node.hostname, node.winrmCredential.user, node.winrmCredential.encryptedPassword, build(path));
+export default async function getDslsstat(node) {
+  return getJSON(node.hostname, node.winrmCredential.user, node.winrmCredential.encryptedPassword, build());
 }
 
-const build = path => `{
+const build = () => `{
   param ($Session)
   Invoke-Command -Session $Session -ScriptBlock  {
     abaqus licensing dslsstat | .{

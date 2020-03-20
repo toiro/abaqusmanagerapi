@@ -5,6 +5,7 @@ import gridfs from '~/utils/gridfs-promise.js';
 import Job from '~/apiserver/cruds/job.js';
 import { tryRequest } from '../_helper.js';
 import getContentFromRemote from '~/utils/powershell-remote/commands/getContentFromRemote.js';
+import terminateAbaqusJob from '~/utils/powershell-remote/commands/terminateAbaqusJob.js';
 import NodeModel from '~/models/node.js';
 
 const router = new Router({ prefix: '/jobs' });
@@ -83,6 +84,18 @@ router
       } else {
         ctx.status = 204;
       }
+    });
+  })
+  .post('/:id/terminate', async(ctx, next) => {
+    await tryRequest(ctx, async() => {
+      const condition = Job.identifier(ctx.params.id);
+      const job = await Job.getEntry(condition);
+      const node = (await NodeModel.findOne({ hostname: job.node })).toObject();
+
+      const stdout = await terminateAbaqusJob(node, job);
+
+      ctx.body = { accept: /Sent Terminate message to Abaqus job [^ ]* on [^ ]*/.test(stdout) };
+      ctx.status = 202;
     });
   });
 

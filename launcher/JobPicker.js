@@ -1,4 +1,4 @@
-import * as queries from './utils/queries.js';
+import * as queries from '~/utils/job-find-queries.js';
 import STATUS from '~/models/enums/job-status.js';
 import CONFIGKEY from '~/models/enums/config-key.js';
 import storedConfig from '~/utils/storedConfig.js';
