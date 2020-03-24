@@ -1,7 +1,7 @@
 import Router from 'koa-router';
 import { tryRequest } from '../_helper.js';
 import * as licensUtil from '~/utils/abaqus-licence.js';
-import config from '~/utils/storedConfig';
+import config from '~/utils/storedConfig.js';
 import ConfigKey from '~/models/enums/config-key.js';
 
 const router = new Router({ prefix: '/stats' });

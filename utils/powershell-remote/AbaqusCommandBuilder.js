@@ -24,7 +24,6 @@ export default class AbaqusCommandBuilder {
 
     const options = [];
     options.push(`cpus=${this._param.cpus}`);
-    options.push('interactive');
     param.parsedOption = options.map(o => `"${o}"`).join(',');
     param.parsedOption = `@(${param.parsedOption})`;
 
@@ -40,7 +39,8 @@ const build = param => `{
     $input = "${param.executeDirRoot}\\${param.workingDirName}\\${param.fileName}"
     $option = ${param.parsedOption}
     Push-Location "${param.executeDirRoot}\\${param.workingDirName}"
-    abaqus "job=\${jobName}" "input=\${input}" \${option}
+    # interactive で実行すると log ファイルが生成されないため、生成する
+    abaqus interactive "job=\${jobName}" "input=\${input}" \${option} | Tee-Object -FilePath ".\\${param.jobName}.log"
     Pop-Location
   }
 }`;

@@ -2,6 +2,7 @@ import * as queries from '~/utils/job-find-queries.js';
 import STATUS from '~/models/enums/job-status.js';
 import CONFIGKEY from '~/models/enums/config-key.js';
 import storedConfig from '~/utils/storedConfig.js';
+import * as licence from '~/utils/abaqus-licence.js';
 import UserModel from '~/models/user.js';
 import NodeModel from '~/models/node.js';
 
@@ -65,16 +66,10 @@ class JobPickCriteria {
     if (nodeCount + 1 > maxConcurrentJobForNode) return false;
 
     // ライセンス
-    /*
-    const tokenToClaim = this.sumTokenToClaime([job]);
-    const tokenInUse = this.sumTokenToClaime(runningJobs);
+    const tokenToClaim = licence.calcLicenceForJob(job);
+    const tokenInUse = licence.calcLicenceForJobs(runningJobs);
     if (tokenToClaim > this.availableToken - tokenInUse) return false;
-    // */
 
     return true;
-  }
-
-  sumTokenToClaime(jobs) {
-    return 100; // TODO
   }
 }
