@@ -6,7 +6,7 @@ import listUserFolders from '~/utils/powershell-remote/commands/listUserFolders.
 import UserModel from '~/models/user.js';
 import NodeModel from '~/models/node.js';
 
-const router = new Router({ prefix: '/jobs' });
+const router = new Router({ prefix: '/mountedjobs' });
 
 router
   .get('/', async(ctx, next) => {
@@ -33,27 +33,29 @@ async function getNodeList(param) {
   return (await NodeModel.find(cond).exec()).map(doc => doc.toObject());
 }
 
+const CONFIG_FILE_NAME = 'abaqusjob.config.json';
 async function getJobSettings(users, nodes) {
   const settings = [];
   for (const node of nodes) {
-    const dirs = (await listUserFolders(node)).filter(value => users.includes(value.owner));
+    const dirs = (await listUserFolders(node)).directories;
     for (const dir of dirs) {
-      let setting = null;
+      const setting = {};
+      setting.input = { sharedDirectoryPath: dir.path };
+      setting.owner = dir.owner;
+      setting.node = node.hostname;
+
       try {
-        const content = await getContentFromRemote(node, path.join(dir.path, 'abaqusjob.config.json'));
+        const content = await getContentFromRemote(node, path.join(dir.path, CONFIG_FILE_NAME));
+        if (!content) { throw new Error(`${CONFIG_FILE_NAME} is not exist or empty.`); }
+        setting.config = content;
         const buf = JSON.parse(content);
-        setting = {
-          name: buf.name,
-          description: buf.description,
-          command: buf.command,
-          input: { sharedDirectoryPath: dir }
-        };
+
+        setting.name = buf.name;
+        setting.description = buf.description;
+        setting.command = buf.command;
       } catch (err) {
         // エラー内容を返す
-        setting = {
-          error: err,
-          input: { sharedDirectoryPath: dir }
-        };
+        setting.error = err.message;
       }
       settings.push(setting);
     }

@@ -11,7 +11,7 @@ router
     await tryRequest(ctx, async() => {
       ctx.body = {
         InUse: await licensUtil.getLicenceInUseByRunningJobs(),
-        Capacity: config.get(ConfigKey.AvailableTokenCount)
+        Capacity: parseInt(await config.get(ConfigKey.AvailableTokenCount))
       };
     });
   });
