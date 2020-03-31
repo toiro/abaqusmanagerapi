@@ -15,9 +15,10 @@ const build = (sorceDir, destDir, newName) => `{
       New-Item $destDir -ItemType Directory > $null
     }
     $moved = Move-Item -Path $sourceDir -Destination $destDir -PassThru
+    #返値はドライブをまたぐと移動先を追えない
    
     if ($newName) {
-      Rename-Item $moved -NewName $newName
+      Rename-Item "\${destDir}\\$($moved.Name) -NewName $newName
     }
   }
 }`;
