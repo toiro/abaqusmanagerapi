@@ -18,7 +18,7 @@ const build = (sorceDir, destDir, newName) => `{
     #返値はドライブをまたぐと移動先を追えない
    
     if ($newName) {
-      Rename-Item "\${destDir}\\$($moved.Name) -NewName $newName
+      Rename-Item "\${destDir}\\$($moved.Name)" -NewName $newName
     }
   }
 }`;
