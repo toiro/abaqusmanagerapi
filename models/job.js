@@ -13,8 +13,8 @@ const schema = new mongoose.Schema({
   command: {
     cpus: { type: Number, required: true },
     options: [{
-      option: { type: String, required: true },
-      param: String
+      name: { type: String, required: true },
+      value: String
     }]
   },
   input: {

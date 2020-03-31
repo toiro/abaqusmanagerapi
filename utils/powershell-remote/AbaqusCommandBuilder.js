@@ -1,6 +1,7 @@
 
 export default class AbaqusCommandBuilder {
-  constructor(param) {
+  constructor(command, param) {
+    this.command = command;
     this._param = param || {};
   }
 
@@ -14,6 +15,7 @@ export default class AbaqusCommandBuilder {
   setFileName(value) { this.set('fileName', value); return this; }
   setJobName(value) { this.set('jobName', value); return this; }
   setCpus(value) { this.set('cpus', value); return this; }
+  setOptions(value) { this.set('options', value); return this; }
 
   build() {
     const param = {};
@@ -24,15 +26,25 @@ export default class AbaqusCommandBuilder {
 
     const options = [];
     options.push(`cpus=${this._param.cpus}`);
+    console.log(this._param.options);
+    if (Array.isArray(this._param.options)) {
+      for (const option of this._param.options) {
+        if (option.value) {
+          options.push(`${option.name}=${option.value}`);
+        } else {
+          options.push(option.name);
+        }
+      }
+    }
     param.parsedOption = options.map(o => `"${o}"`).join(',');
     param.parsedOption = `@(${param.parsedOption})`;
 
     // console.log(build(param));
-    return build(param);
+    return build(this.command, param);
   }
 }
 
-const build = param => `{
+const build = (command, param) => `{
   param ($Session)
   Invoke-Command -Session $Session -ScriptBlock  {
     $jobName = "${param.jobName}"
@@ -40,7 +52,7 @@ const build = param => `{
     $option = ${param.parsedOption}
     Push-Location "${param.executeDirRoot}\\${param.workingDirName}"
     # interactive で実行すると log ファイルが生成されないため、生成する
-    ${param.command} interactive "job=\${jobName}" "input=\${input}" \${option} | Tee-Object -FilePath ".\\${param.jobName}.log"
+    ${command} interactive "job=\${jobName}" "input=\${input}" \${option} | Tee-Object -FilePath ".\\${param.jobName}.log"
     Pop-Location
   }
 }`;

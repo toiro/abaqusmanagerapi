@@ -1,10 +1,10 @@
 import { getJSON } from '../PowerShellRemote.js';
 
-export default async function listUserFolders(node) {
-  return getJSON(node.hostname, node.winrmCredential.user, node.winrmCredential.encryptedPassword, build(node.importDirectoryRoot));
+export default async function listUserFolders(node, configFileName) {
+  return getJSON(node.hostname, node.winrmCredential.user, node.winrmCredential.encryptedPassword, build(node.importDirectoryRoot, configFileName));
 }
 
-const build = path => `{
+const build = (path, configFileName) => `{
   param ($Session)
    Invoke-Command -Session $Session -ScriptBlock  {
      $path = '${path}'
@@ -17,7 +17,8 @@ const build = path => `{
          @{
            owner = $owner;
            name = $_.Name;
-           path = $_.PsPath -replace '^Microsoft.PowerShell.Core\\\\FileSystem::', ''
+           path = $_.PsPath -replace '^Microsoft.PowerShell.Core\\\\FileSystem::', '';
+           config = $(Get-ChildItem -Path $_.PsPath -Filter '${configFileName}' | ForEach-Object { $(Get-Content $_.PsPath) -Join '\n' });
          }
        })
      } -End {
