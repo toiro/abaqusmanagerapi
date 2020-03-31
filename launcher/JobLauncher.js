@@ -46,14 +46,24 @@ async function launchJob(job, emitter) {
     // 一時ファイルを削除する。非同期にして以後関知しない。
     fs.rmdir(localTempDir, { recursive: true }, () => {});
   } else if (job.input.sharedDirectoryPath) {
-    // 共有ディレクトリから取得
-    throw new Error('Not implemented yet');// TODO
+    await moveDirectory(node, job.input.sharedDirectoryPath, path(node.executeDirectoryRoot, job.owner));
   } else {
     throw new Error('No input file configuration');
   }
 
+  let command = 'abaqus';
+
+  // user subroutine 対応
+  const useUserSubroutine = job.command.options.some(_ => _.option === 'user');
+  if (useUserSubroutine) {
+    const scriptFileName = 'subroutine.bat';
+    const userSubroutineScript = path.join(process.cwd(), 'resources', scriptFileName);
+    await sendFile(node, userSubroutineScript, path(node.executeDirectoryRoot, job.owner));
+    command = `.\\${scriptFileName}`;
+  }
+
   // シェル起動は await しない
-  const abaqusCommand = new AbaqusCommandBuilder();
+  const abaqusCommand = new AbaqusCommandBuilder({ command });
   abaqusCommand
     .setJobName(job.name)
     .setFileName(inputFileName)

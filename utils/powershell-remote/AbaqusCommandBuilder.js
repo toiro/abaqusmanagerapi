@@ -40,7 +40,7 @@ const build = param => `{
     $option = ${param.parsedOption}
     Push-Location "${param.executeDirRoot}\\${param.workingDirName}"
     # interactive で実行すると log ファイルが生成されないため、生成する
-    abaqus interactive "job=\${jobName}" "input=\${input}" \${option} | Tee-Object -FilePath ".\\${param.jobName}.log"
+    ${param.command} interactive "job=\${jobName}" "input=\${input}" \${option} | Tee-Object -FilePath ".\\${param.jobName}.log"
     Pop-Location
   }
 }`;
