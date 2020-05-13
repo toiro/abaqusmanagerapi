@@ -7,6 +7,7 @@ import { tryRequest } from '../_helper.js';
 import getContentFromRemote from '~/utils/powershell-remote/commands/getContentFromRemote.js';
 import terminateAbaqusJob from '~/utils/powershell-remote/commands/terminateAbaqusJob.js';
 import NodeModel from '~/models/node.js';
+import STATUS from '~/models/enums/job-status.js';
 
 const router = new Router({ prefix: '/jobs' });
 
@@ -19,8 +20,13 @@ router
     });
   })
   .get('/', async(ctx, next) => {
+    const filter = {};
+    if (ctx.request.query.owner) filter.owner = ctx.request.query.owner;
+    if (ctx.request.query.node) filter.node = ctx.request.query.node;
+    if (ctx.request.query.cpus) filter['command.cpus'] = ctx.request.query.cpus;
+    if (ctx.request.query.status) filter['status.code'] = ctx.request.query.status;
     await tryRequest(ctx, async() => {
-      ctx.body = await Job.getEntrys();
+      ctx.body = await Job.getEntrys(filter);
     });
   })
   .get('/:id', async(ctx, next) => {
@@ -33,7 +39,7 @@ router
     await tryRequest(ctx, async() => {
       const condition = Job.identifier(ctx.params.id);
       // 開始されていたら削除しない
-      condition['status.code'] = { $ne: 'Running' };
+      condition['status.code'] = { $ne: STATUS.Running };
       const deleted = await Job.deleteEntry(condition);
       if (deleted && deleted.input.uploaded) {
         // delete input file in gridfs
@@ -86,16 +92,73 @@ router
       }
     });
   })
+  .post('/:id/start', async(ctx, next) => {
+    await tryRequest(ctx, async() => {
+      const condition = Job.identifier(ctx.params.id);
+      condition['input.external'] = { $ne: null };
+      // Starting なら Running に
+      condition['status.code'] = STATUS.Starting;
+      const update = {};
+      update['status.code'] = STATUS.Running;
+      update['status.at'] = Date.now();
+      update['status.msg'] = 'Started by external signal.';
+      const job = await Job.updateEntry(condition, update);
+
+      if (job) {
+        ctx.body = job;
+        ctx.status = 201;
+      } else {
+        ctx.status = 422;
+      }
+    });
+  })
+  .post('/:id/complete', async(ctx, next) => {
+    await tryRequest(ctx, async() => {
+      const condition = Job.identifier(ctx.params.id);
+      condition['input.external'] = { $ne: null };
+      // Running なら Completed に
+      condition['status.code'] = STATUS.Running;
+      const update = {};
+      update['status.code'] = STATUS.Completed;
+      update['status.at'] = Date.now();
+      update['status.msg'] = 'Completed by external signal.';
+      const job = await Job.updateEntry(condition, update);
+
+      if (job) {
+        ctx.body = job;
+        ctx.status = 201;
+      } else {
+        ctx.status = 422;
+      }
+    });
+  })
   .post('/:id/terminate', async(ctx, next) => {
     await tryRequest(ctx, async() => {
       const condition = Job.identifier(ctx.params.id);
       const job = await Job.getEntry(condition);
-      const node = (await NodeModel.findOne({ hostname: job.node })).toObject();
 
-      const stdout = await terminateAbaqusJob(node, job);
+      if (job.input.external) {
+        const condition = Job.identifier(ctx.params.id);
+        condition['input.external'] = { $ne: null };
+        const update = {};
+        update['status.code'] = STATUS.Missing;
+        update['status.at'] = Date.now();
+        update['status.msg'] = 'Aborted while executing externally.';
+        const job = await Job.updateEntry(condition, update);
+        if (job) {
+          ctx.body = job;
+          ctx.status = 201;
+        } else {
+          ctx.status = 422;
+        }
+      } else {
+        const node = (await NodeModel.findOne({ hostname: job.node })).toObject();
 
-      ctx.body = { accept: /Sent Terminate message to Abaqus job [^ ]* on [^ ]*/.test(stdout) };
-      ctx.status = 202;
+        const stdout = await terminateAbaqusJob(node, job);
+
+        ctx.body = { accept: /Sent Terminate message to Abaqus job [^ ]* on [^ ]*/.test(stdout) };
+        ctx.status = 202;
+      }
     });
   });
 

@@ -7,7 +7,7 @@ import PowerShellRemote from '~/utils/powershell-remote/PowerShellRemote.js';
 import AbaqusCommandBuilder from '~/utils/powershell-remote/AbaqusCommandBuilder.js';
 import sendFile from '~/utils/powershell-remote/commands/sendFile.js';
 import moveDirectory from '~/utils/powershell-remote/commands/moveDirectory.js';
-import findFile from '~/utils/powershell-remote/commands/findFiles.js';
+import setupInputFromSharedDirectory from '~/utils/powershell-remote/commands/setupInputFromSharedDirectory.js';
 
 export default class JobLauncher extends EventEmitter {
   // constructor () {super();};
@@ -37,25 +37,21 @@ async function launchJob(job, emitter) {
 
     // アップロードされたファイルをローカルtempに配置
     await fs.promises.mkdir(localTempDir, { recursive: true });
-    const readStream = await gridfs.openDownloadStream(job.input.uploaded);
-    const writeStream = fs.createWriteStream(path.join(localTempDir, inputFileName));
-    readStream.pipe(writeStream);
+    try {
+      const readStream = await gridfs.openDownloadStream(job.input.uploaded);
+      const writeStream = fs.createWriteStream(path.join(localTempDir, inputFileName));
+      readStream.pipe(writeStream);
 
-    // ノードにファイルを配置
-    await sendFile(node, localTempDir, node.executeDirectoryRoot);
-
-    // 一時ファイルを削除する。非同期にして以後関知しない。
-    fs.rmdir(localTempDir, { recursive: true }, () => {});
-  } else if (job.input.sharedDirectoryPath) {
-    await moveDirectory(node, job.input.sharedDirectoryPath, node.executeDirectoryRoot, workingDirName);
-    // inp ファイル名を取得する
-    const inp = await findFile(node, path.join(node.executeDirectoryRoot, workingDirName), '*.inp');
-    if (inp.result.length === 0) {
-      throw new Error('Input file not found.');
-    } else if (inp.result.length > 1) {
-      throw new Error('Multiple Input file found.');
+      // ノードにファイルを配置
+      await sendFile(node, localTempDir, node.executeDirectoryRoot);
+    } finally {
+      // 一時ファイルを削除する。非同期にして以後関知しない。
+      fs.rmdir(localTempDir, { recursive: true }, () => {});
     }
-    inputFileName = path.basename(inp.result[0]);
+  } else if (job.input.sharedDirectory) {
+    const $param = job.input.sharedDirectory;
+    // 作業ディレクトリに必要なファイルを配置し、インプットファイルが最後の一つならソースディレクトリを削除する
+    await setupInputFromSharedDirectory(node, $param.path, node.executeDirectoryRoot, $param.inputfile, workingDirName);
   } else {
     throw new Error('No input file configuration.');
   }

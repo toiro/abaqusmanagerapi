@@ -18,6 +18,22 @@ class JobStatusReciever extends EventEmitter {
       };
       await doc.save();
     });
+    // 前提ステータスの時だけ、ステータスを変更する
+    this.on('transit', async(job, fromStatus, toStatus, option) => {
+      option = option || {};
+      const filter = {
+        _id: job._id,
+        'status.code': fromStatus
+      };
+      const update = {
+        'status.code': toStatus,
+        'status.at': Date.now()
+      };
+      if (option.message) {
+        update['status.message'] = option.message;
+      }
+      await JobModel.findOneAndUpdate(filter, update);
+    });
   }
 
   waiting(job) {
@@ -36,12 +52,16 @@ class JobStatusReciever extends EventEmitter {
     this.emit('update', job, STATUS.Completed, { message, resultDirectoryPath });
   }
 
-  errored(job, message, resultDirectoryPath) {
-    this.emit('update', job, STATUS.Errored, { message, resultDirectoryPath });
+  failed(job, message, resultDirectoryPath) {
+    this.emit('update', job, STATUS.Failed, { message, resultDirectoryPath });
   }
 
   missing(job) {
     this.emit('update', job, STATUS.Missing);
+  }
+
+  startingToMissing(job) {
+    this.emit('transit', job, STATUS.Starting, STATUS.Missing, { message: 'Timeout for starting externally.' });
   }
 }
 

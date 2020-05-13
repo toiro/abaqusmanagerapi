@@ -18,15 +18,23 @@ const schema = new mongoose.Schema({
     }]
   },
   input: {
-    sharedDirectoryPath: { type: String },
-    uploaded: { type: mongoose.Schema.Types.ObjectId }
+    // 共有ディレクトリにファイル配置
+    sharedDirectory: {
+      path: { type: String },
+      inputfile: { type: String }
+    },
+    // Webからアップロード
+    uploaded: { type: mongoose.Schema.Types.ObjectId },
+    // CPU枠を確保して外部実行
+    external: {
+      startingTimeout: { type: Number }
+    }
   },
   priority: { type: Number, enum: Object.values(JobPriority), default: JobPriority.Middle },
   status: {
     code: { type: String, required: true, default: JobStatus.Waiting },
     message: { type: String },
     at: { type: Date, required: true, default: Date.now },
-    licenseInUse: { type: Number },
     executeDirectoryPath: { type: String },
     resultDirectoryPath: { type: String }
   }

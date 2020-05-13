@@ -14,7 +14,7 @@ export default async opt => {
     })
     .on('error', (job, error) => {
       logger.warn(`An error occured on launch ${job.owner}'s job: ${job.name}`, error);
-      jobStatusReciever.errored(job, error.msg);
+      jobStatusReciever.failed(job, error.msg);
     })
     .on('finish', (job, code, msg, resultDir) => {
       // abaqus は「Abaqus の解析はエラーのため終了しました.」というメッセージで終了しても、終了コードは 0
@@ -24,7 +24,7 @@ export default async opt => {
         jobStatusReciever.completed(job, msg, resultDir);
       } else {
         logger.warn(`Aborted ${job.owner}'s job: ${job.name}`);
-        jobStatusReciever.errored(job, msg, resultDir);
+        jobStatusReciever.failed(job, msg, resultDir);
       }
     });
 
@@ -35,8 +35,18 @@ export default async opt => {
       for (const job of jobs) {
         logger.verbose(`Pick ${job.owner}'s job: ${job.name}`);
         jobStatusReciever.starting(job);
-        // 非同期に実行
-        launcher.launch(job);
+        if (job.input.external) {
+          // 外部実行は Starting 以降は関知しない
+          // Starting で放置されたものは Missing として後続を実行する
+          let timeout = job.input.external.startingTimeout * 60 * 1000;
+          if (timeout < 0) { timeout = 1000; }
+          setTimeout(() => {
+            jobStatusReciever.startingToMissing(job);
+          }, timeout);
+        } else {
+          // 非同期に実行
+          launcher.launch(job);
+        }
       }
       // checkJobStatus() // TODO ジョブの追跡に失敗していないかを検証する
     },

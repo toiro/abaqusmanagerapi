@@ -1,6 +1,6 @@
 import Router from 'koa-router';
 import { tryRequest } from '../_helper.js';
-import * as licensUtil from '~/utils/abaqus-licence.js';
+import * as licenseUtil from '~/utils/abaqus-licence.js';
 import config from '~/utils/storedConfig.js';
 import ConfigKey from '~/models/enums/config-key.js';
 
@@ -10,7 +10,8 @@ router
   .get('/license', async(ctx, next) => {
     await tryRequest(ctx, async() => {
       ctx.body = {
-        InUse: await licensUtil.getLicenceInUseByRunningJobs(),
+        InUseDsls: await licenseUtil.getLicenceInUseByDslsstatForAllNode(),
+        InUse: await licenseUtil.getLicenceInUseByRunningJobs(),
         Capacity: parseInt(await config.get(ConfigKey.AvailableTokenCount))
       };
     });

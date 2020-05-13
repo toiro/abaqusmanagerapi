@@ -1,6 +1,6 @@
 import { getStdout } from '../PowerShellRemote.js';
 
-export default async function listUserFolders(node, sorceDir, destDir, newName = '') {
+export default async function moveDirectory(node, sorceDir, destDir, newName = '') {
   return getStdout(node.hostname, node.winrmCredential.user, node.winrmCredential.encryptedPassword, build(sorceDir, destDir, newName));
 }
 
@@ -11,6 +11,7 @@ const build = (sorceDir, destDir, newName) => `{
     $destDir = '${destDir}'
     $newName = '${newName}'
    
+    # 移動先がなければ作る
     if (-not $(Test-Path $destDir)) {
       New-Item $destDir -ItemType Directory > $null
     }

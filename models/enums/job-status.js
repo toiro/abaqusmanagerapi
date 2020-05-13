@@ -3,6 +3,6 @@ export default Object.freeze({
   Starting: 'Starting',
   Running: 'Running',
   Completed: 'Completed',
-  Errored: 'Errored',
+  Failed: 'Failed',
   Missing: 'Missing'
 });

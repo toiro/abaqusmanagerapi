@@ -38,10 +38,11 @@ async function getJobSettings(users, nodes) {
     const dirs = (await listUserFolders(node, CONFIG_FILE_NAME)).directories.filter(_ => users.includes(_.owner));
     for (const dir of dirs) {
       const setting = {};
-      setting.input = { sharedDirectoryPath: dir.path };
+      setting.input = { sharedDirectory: { path: dir.path } };
       setting.owner = dir.owner;
       setting.node = node.hostname;
       setting.config = dir.config;
+      setting.inputfiles = dir.inputfiles;
 
       if (!setting.config) {
         setting.error = `${CONFIG_FILE_NAME} cannot read or is empty.`;

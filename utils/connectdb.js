@@ -10,7 +10,9 @@ export default async() => {
   const dbconfig = appconfig.get('mongo');
   const dboption = {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+    useCreateIndex: true
   };
 
   await mongoose.connect(`mongodb://${dbconfig.host}/${dbconfig.db}`, dboption);

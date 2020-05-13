@@ -19,6 +19,7 @@ const build = (path, configFileName) => `{
            name = $_.Name;
            path = $_.PsPath -replace '^Microsoft.PowerShell.Core\\\\FileSystem::', '';
            config = $(Get-ChildItem -Path $_.PsPath -Filter '${configFileName}' | ForEach-Object { $(Get-Content $_.PsPath) -Join '\n' });
+           inputfiles = @($(Get-ChildItem -Path $_.PsPath -Filter '*.inp').Name);
          }
        })
      } -End {
