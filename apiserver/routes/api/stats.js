@@ -10,7 +10,8 @@ router
   .get('/license', async(ctx, next) => {
     await tryRequest(ctx, async() => {
       ctx.body = {
-        InUseDsls: await licenseUtil.getLicenceInUseByDslsstatForAllNode(),
+        // dsls は取れない場合もエラーにはしない
+        InUseDsls: await licenseUtil.getLicenceInUseByDslsstatForAllNode().catch(() => 'unknown'),
         InUse: await licenseUtil.getLicenceInUseByRunningJobs(),
         Capacity: parseInt(await config.get(ConfigKey.AvailableTokenCount))
       };

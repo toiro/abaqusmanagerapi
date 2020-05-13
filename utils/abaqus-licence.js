@@ -48,5 +48,5 @@ export async function getLicenceInUseByDslsstatFor(node) {
 
 export async function getLicenceInUseByDslsstatForAllNode() {
   const nodes = await NodeModel.find().exec();
-  return nodes.reduce((sum, node) => sum + getLicenceInUseByDslsstatFor(node), 0);
+  return (await Promise.all(nodes.map(async n => getLicenceInUseByDslsstatFor(n)))).reduce(async(sum, used) => sum + used, 0);
 }

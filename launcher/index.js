@@ -3,8 +3,13 @@ import logger from '~/utils/logger.js';
 import JobPicker from './JobPicker.js';
 import JobLauncher from './JobLauncher.js';
 import jobStatusReciever from './utils/JobStatuRecieverSingleton.js';
+import * as queries from '~/utils/job-find-queries.js';
+import STATUS from '~/models/enums/job-status.js';
 
 export default async opt => {
+  // 起動時に Starting / Running は Missing に
+  await scanMissingJobs();
+
   const picker = new JobPicker();
 
   const launcher = new JobLauncher()
@@ -57,3 +62,19 @@ export default async opt => {
 
   return task;
 };
+
+async function scanMissingJobs() {
+  const starting = await queries.jobsOn(STATUS.Starting);
+  const running = await queries.jobsOn(STATUS.Running);
+
+  const toBeMissing = starting.concat(running);
+
+  for (const job of toBeMissing) {
+    job.status = {
+      code: STATUS.Missing,
+      message: 'The status is missed because Abaqus Manager was maybe halted while the job was running or starting.',
+      at: Date.now()
+    };
+    await job.save();
+  }
+}
