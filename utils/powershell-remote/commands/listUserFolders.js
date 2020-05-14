@@ -17,14 +17,14 @@ const build = (path, configFileName) => `{
          @{
            owner = $owner;
            name = $_.Name;
-           path = $_.PsPath -replace '^Microsoft.PowerShell.Core\\\\FileSystem::', '';
+           path = $_.Fullname;
            config = $(Get-ChildItem -Path $_.PsPath -Filter '${configFileName}' | ForEach-Object { $(Get-Content $_.PsPath) -Join '\n' });
-           inputfiles = @($(Get-ChildItem -Path $_.PsPath -Filter '*.inp').Name);
+           inputfiles = @($(Get-ChildItem -Path $_.PsPath -Filter '*.inp') | Foreach-Object { $_.Name });
          }
        })
      } -End {
        return $ret
      }
-     return ConvertTo-Json @{ directories = @($list) }
+     return ConvertTo-Json -InputObject @{ directories = @($list) } -Depth 3
    }
  }`;

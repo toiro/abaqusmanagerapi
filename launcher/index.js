@@ -13,13 +13,13 @@ export default async opt => {
   const picker = new JobPicker();
 
   const launcher = new JobLauncher()
-    .on('launch', (job, executeDir) => {
-      logger.info(`Start ${job.owner}'s job: ${job.name}`);
-      jobStatusReciever.running(job, executeDir);
-    })
     .on('error', (job, error) => {
       logger.warn(`An error occured on launch ${job.owner}'s job: ${job.name}`, error);
       jobStatusReciever.failed(job, error.msg);
+    })
+    .on('launch', (job, executeDir) => {
+      logger.info(`Launch ${job.owner}'s job: ${job.name}`);
+      jobStatusReciever.running(job, executeDir);
     })
     .on('finish', (job, code, msg, resultDir) => {
       // abaqus は「Abaqus の解析はエラーのため終了しました.」というメッセージで終了しても、終了コードは 0
@@ -33,6 +33,13 @@ export default async opt => {
       }
     });
 
+  launcher.on('queue', (job, count) => {
+    logger.verbose(`Queue ${job.owner}'s job: ${job.name} on ${count}th`);
+  });
+  launcher.on('start', (job, count) => {
+    logger.verbose(`Start ${job.owner}'s job: ${job.name}`);
+  });
+
   // 10秒間隔で実行
   const task = schedule.schedule('*/10 * * * * *',
     async() => {
@@ -40,7 +47,7 @@ export default async opt => {
       for (const job of jobs) {
         logger.verbose(`Pick ${job.owner}'s job: ${job.name}`);
         jobStatusReciever.starting(job);
-        if (job.input.external) {
+        if (job.toObject().input.external) {
           // 外部実行は Starting 以降は関知しない
           // Starting で放置されたものは Missing として後続を実行する
           let timeout = job.input.external.startingTimeout * 60 * 1000;

@@ -85,7 +85,11 @@ export function getStdout(hostname, user, encPass, command, parser) {
             } catch (err) {
               reject(err);
             }
-          } else { reject(new Error(`Error occuered in Exec Powershell from Remote on ${hostname}.\n${errorout}\n${command}`)); }
+          } else {
+            if (errorout === '') { errorout = 'NO ERROR OUTPUT.'; }
+            if (content === '') { content = 'NO STANDARD OUTPUT.'; }
+            reject(new Error(`Error occuered in Exec Powershell from Remote on ${hostname}.\n${errorout}\n${content}\n${command}`));
+          }
         })
         .invoke();
     }

@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import async from 'asnyc';
 import fs from 'fs';
 import path from 'path';
 import dateformat from 'dateformat';
@@ -9,20 +10,36 @@ import sendFile from '~/utils/powershell-remote/commands/sendFile.js';
 import moveDirectory from '~/utils/powershell-remote/commands/moveDirectory.js';
 import setupInputFromSharedDirectory from '~/utils/powershell-remote/commands/setupInputFromSharedDirectory.js';
 
+const events = Object.freeze({
+  START: 'start',
+  LAUNCH: 'launch',
+  FINISH: 'finish',
+  QUEUE: 'queue',
+  ERROR: 'error'
+});
+
 export default class JobLauncher extends EventEmitter {
-  // constructor () {super();};
-  async launch(job) {
-    try {
-      await launchJob(job, this);
-    } catch (error) {
-      this.emit('error', job.toObject(), error);
+  constructor() {
+    super();
+    // 起動準備で Powershell を通じたファイルアクセスが発生するので、並行処理を避けるために queue を使う
+    this.queue = async.queue(async params => launchJob(params.job, params.emitter));
+    this.queue.error = (err, params) => {
+      this.emit(events.QUEUE, params.job.toObject(), err);
+    };
+  }
+
+  launch(job) {
+    this.queue.push({ job, emitter: this });
+    const count = this.queue.length();
+    if (count > 1) {
+      this.emit(events.WAIT, job.toObject(), count);
     }
   }
 }
 
 const datePostfixFormat = 'yyyymmddHHMMssl';
 async function launchJob(job, emitter) {
-  const gridfs = (await import('~/utils/gridfs-promise.js')).default;
+  emitter.emit(events.START, job.toObject);
 
   const datePostfix = dateformat(Date.now(), datePostfixFormat);
   const workingDirName = `${job.owner}_${job.name}_${datePostfix}`;
@@ -31,6 +48,7 @@ async function launchJob(job, emitter) {
   // ファイルを配置する
   let inputFileName = '';
   if (job.input.uploaded) {
+    const gridfs = (await import('~/utils/gridfs-promise.js')).default;
     const localTempDir = path.join(process.cwd(), 'temp', workingDirName);
     const meta = await gridfs.findById(job.input.uploaded);
     inputFileName = meta.filename;
@@ -51,6 +69,7 @@ async function launchJob(job, emitter) {
   } else if (job.input.sharedDirectory) {
     const $param = job.input.sharedDirectory;
     // 作業ディレクトリに必要なファイルを配置し、インプットファイルが最後の一つならソースディレクトリを削除する
+    inputFileName = $param.inputfile;
     await setupInputFromSharedDirectory(node, $param.path, node.executeDirectoryRoot, $param.inputfile, workingDirName);
   } else {
     throw new Error('No input file configuration.');
@@ -66,7 +85,7 @@ async function launchJob(job, emitter) {
     command = `.\\${scriptFileName}`;
   }
 
-  // シェル起動は await しない
+  // abaqus コマンド起動
   console.log(job);
   const abaqusCommand = new AbaqusCommandBuilder(command);
   abaqusCommand
@@ -79,6 +98,7 @@ async function launchJob(job, emitter) {
 
   console.log(abaqusCommand.build());
   const psRemote = new PowerShellRemote(node.hostname, node.winrmCredential.user, node.winrmCredential.encryptedPassword, abaqusCommand.build());
+  // await しない
   psRemote
     .on('stdout', (data, count) => {
     })
@@ -87,7 +107,7 @@ async function launchJob(job, emitter) {
       emitter.stderr += msg;
     })
     .on('error', error => {
-      emitter.emit('error', job.toObject(), error);
+      emitter.emit(events.ERROR, job.toObject(), error);
     })
     .on('finish', async(code, lastStdOut) => {
       const resultDir = path.join(node.resultDirectoryRoot, job.owner, workingDirName);
@@ -98,9 +118,9 @@ async function launchJob(job, emitter) {
       }
 
       const msg = (code !== 0 && emitter.stderr) ? emitter.stderr : lastStdOut;
-      emitter.emit('finish', job.toObject(), code, msg, resultDir);
+      emitter.emit(events.FINISH, job.toObject(), code, msg, resultDir);
     })
     .invoke();
 
-  emitter.emit('launch', job.toObject(), path.join(node.executeDirectoryRoot, workingDirName));
+  emitter.emit(events.LAUNCH, job.toObject(), path.join(node.executeDirectoryRoot, workingDirName));
 };
