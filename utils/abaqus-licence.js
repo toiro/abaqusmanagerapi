@@ -42,12 +42,11 @@ export async function getLicenceInUseByRunningJobs() {
   return calcLicenceForJobs(await queries.jobsOn(JobStatus.Running));
 }
 
-export async function getLicenceInUseByDslsstatFor(node) {
+export async function getLicenceInUseByDslsstatFrom(node) {
   return calcLicenceInUseByDslsstat((await getDslsstat(node)).Licenses);
 }
 
-export async function getLicenceInUseByDslsstatForAllNode() {
-  const nodes = await NodeModel.find().exec();
-  const inUseList = await Promise.all(nodes.map(async n => getLicenceInUseByDslsstatFor(n)));
-  return inUseList.reduce((sum, inUse) => sum + inUse, 0);
+export async function getLicenceInUseByDslsstat() {
+  const node = (await NodeModel.find().exec())[0];
+  return getLicenceInUseByDslsstatFrom(node);
 }
