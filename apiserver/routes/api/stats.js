@@ -11,7 +11,7 @@ router
     await tryRequest(ctx, async() => {
       ctx.body = {
         // dsls は取れない場合もエラーにはしない
-        InUseDsls: await licenseUtil.getLicenceInUseByDslsstatForAllNode().catch(() => NaN),
+        InUseDsls: await licenseUtil.getLicenceInUseByDslsstatForAllNode(),
         InUse: await licenseUtil.getLicenceInUseByRunningJobs(),
         Capacity: parseInt(await config.get(ConfigKey.AvailableTokenCount))
       };

@@ -7,6 +7,9 @@ export default function getContentFromRemote(node, path, max = 100) {
 const build = (path, max) => `{
   param ($Session)
   Invoke-Command -Session $Session -ScriptBlock  {
-    Get-Content -Tail ${max} '${path}'
+    $path = '${path}'
+    if (Test-Path $path) {
+      Get-Content -Tail ${max} $path
+    }
   }
 }`;

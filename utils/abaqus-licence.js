@@ -29,9 +29,9 @@ export function calcLicenceInUseByDslsstat(dslsStatLicenses) {
   return dslsStatLicenses.reduce((sum, license) => {
     switch (license.Feature) {
       case 'QAX':
-        return sum + license.InUse;
+        return sum + Number.parseInt(license.InUse);
       case 'QXT':
-        return sum + Math.ceil(license.qxt / 10);
+        return sum + Math.ceil(Number.parseInt(license.InUse) / 10);
       default:
         return sum;
     }
@@ -43,10 +43,11 @@ export async function getLicenceInUseByRunningJobs() {
 }
 
 export async function getLicenceInUseByDslsstatFor(node) {
-  return calcLicenceInUseByDslsstat((await getDslsstat(node)).licenses);
+  return calcLicenceInUseByDslsstat((await getDslsstat(node)).Licenses);
 }
 
 export async function getLicenceInUseByDslsstatForAllNode() {
   const nodes = await NodeModel.find().exec();
-  return (await Promise.all(nodes.map(async n => getLicenceInUseByDslsstatFor(n)))).reduce(async(sum, used) => sum + used, 0);
+  const inUseList = await Promise.all(nodes.map(async n => getLicenceInUseByDslsstatFor(n)));
+  return inUseList.reduce((sum, inUse) => sum + inUse, 0);
 }

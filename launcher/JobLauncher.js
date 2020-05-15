@@ -32,14 +32,14 @@ export default class JobLauncher extends EventEmitter {
     this.queue.push({ job, emitter: this });
     const count = this.queue.length();
     if (count > 1) {
-      this.emit(events.WAIT, job.toObject(), count);
+      this.emit(events.QUEUE, job.toObject(), count);
     }
   }
 }
 
 const datePostfixFormat = 'yyyymmddHHMMssl';
 async function launchJob(job, emitter) {
-  emitter.emit(events.START, job.toObject);
+  emitter.emit(events.START, job.toObject());
 
   const datePostfix = dateformat(Date.now(), datePostfixFormat);
   const workingDirName = `${job.owner}_${job.name}_${datePostfix}`;
