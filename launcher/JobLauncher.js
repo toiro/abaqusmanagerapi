@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import async from 'asnyc';
+import async from 'async';
 import fs from 'fs';
 import path from 'path';
 import dateformat from 'dateformat';
