@@ -44,6 +44,10 @@ class JobStatusReciever extends EventEmitter {
     this.emit('update', job, STATUS.Starting);
   }
 
+  ready(job) {
+    this.emit('update', job, STATUS.Ready);
+  }
+
   running(job, executeDirectoryPath) {
     this.emit('update', job, STATUS.Running, { executeDirectoryPath });
   }
@@ -60,8 +64,8 @@ class JobStatusReciever extends EventEmitter {
     this.emit('update', job, STATUS.Missing);
   }
 
-  startingToMissing(job) {
-    this.emit('transit', job, STATUS.Starting, STATUS.Missing, { message: 'Timeout for starting externally.' });
+  readyToMissing(job) {
+    this.emit('transit', job, STATUS.Ready, STATUS.Missing, { message: 'Job timed out before started externally.' });
   }
 }
 

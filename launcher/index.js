@@ -7,7 +7,7 @@ import * as queries from '~/utils/job-find-queries.js';
 import STATUS from '~/models/enums/job-status.js';
 
 export default async opt => {
-  // 起動時に Starting / Running は Missing に
+  // 起動時に Starting / Ready / Running は Missing に
   await scanMissingJobs();
 
   const picker = new JobPicker();
@@ -46,16 +46,16 @@ export default async opt => {
       const jobs = await picker.pick();
       for (const job of jobs) {
         logger.verbose(`Pick ${job.owner}'s job: ${job.name}`);
-        jobStatusReciever.starting(job);
         if (job.toObject().input.external) {
-          // 外部実行は Starting 以降は関知しない
+          jobStatusReciever.ready(job);
           // Starting で放置されたものは Missing として後続を実行する
-          let timeout = job.input.external.startingTimeout * 60 * 1000;
+          let timeout = job.input.external.readyTimeout * 60 * 1000;
           if (timeout < 0) { timeout = 1000; }
           setTimeout(() => {
-            jobStatusReciever.startingToMissing(job);
+            jobStatusReciever.readyToMissing(job);
           }, timeout);
         } else {
+          jobStatusReciever.starting(job);
           // 非同期に実行
           launcher.launch(job);
         }
@@ -72,9 +72,10 @@ export default async opt => {
 
 async function scanMissingJobs() {
   const starting = await queries.jobsOn(STATUS.Starting);
+  const ready = await queries.jobsOn(STATUS.Ready);
   const running = await queries.jobsOn(STATUS.Running);
 
-  const toBeMissing = starting.concat(running);
+  const toBeMissing = starting.concat(ready).concat(running);
 
   for (const job of toBeMissing) {
     job.status = {

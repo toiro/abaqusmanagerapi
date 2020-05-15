@@ -27,7 +27,7 @@ const schema = new mongoose.Schema({
     uploaded: { type: mongoose.Schema.Types.ObjectId },
     // CPU枠を確保して外部実行
     external: {
-      startingTimeout: { type: Number }
+      readyTimeout: { type: Number }
     }
   },
   priority: { type: Number, enum: Object.values(JobPriority), default: JobPriority.Middle },

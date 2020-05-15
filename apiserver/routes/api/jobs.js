@@ -96,8 +96,8 @@ router
     await tryRequest(ctx, async() => {
       const condition = Job.identifier(ctx.params.id);
       condition['input.external'] = { $ne: null };
-      // Starting なら Running に
-      condition['status.code'] = STATUS.Starting;
+      // Ready なら Running に
+      condition['status.code'] = STATUS.Ready;
       const update = {};
       update['status.code'] = STATUS.Running;
       update['status.at'] = Date.now();
