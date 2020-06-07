@@ -14,7 +14,11 @@ function calc(none, ncore) {
 }
 
 export function calcLicenceForJob(job) {
-  return calc(5, job.command.cpus);
+  if (job.input.external) {
+    return calc(5, job.input.external.cpus) * job.input.external.maxConcurrentJobs;
+  } else {
+    return calc(5, job.command.cpus);
+  }
 }
 
 export function calcLicenceForJobs(jobs) {

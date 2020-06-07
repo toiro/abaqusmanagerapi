@@ -27,6 +27,8 @@ const schema = new mongoose.Schema({
     uploaded: { type: mongoose.Schema.Types.ObjectId },
     // CPU枠を確保して外部実行
     external: {
+      cpus: { type: Number },
+      maxConcurrentJobs: { type: Number },
       readyTimeout: { type: Number }
     }
   },
