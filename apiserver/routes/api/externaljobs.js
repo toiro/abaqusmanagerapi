@@ -40,13 +40,20 @@ async function getJobSettings(users, nodes, config) {
     for (const dir of dirs) {
       const setting = {};
       setting.name = dir.name;
-      setting.description = dir.path;
       setting.owner = dir.owner;
       setting.node = node.hostname;
       setting.config = dir.config;
       setting.inputfiles = dir.inputfiles;
+      setting.command = {
+        cpus: 0
+      };
+      setting.input = {
+        external: {
+          workingDir: dir.path
+        }
+      };
 
-      if (setting.config) {
+      if (!(setting.config === null || Object.keys(setting.config).length === 0)) {
         setting.error = `${CONFIG_FILE_NAME} exists. This may not be to use externally.`;
         settings.push(setting);
         continue;

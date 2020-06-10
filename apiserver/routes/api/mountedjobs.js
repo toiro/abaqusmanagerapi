@@ -44,7 +44,8 @@ async function getJobSettings(users, nodes) {
       setting.config = dir.config;
       setting.inputfiles = dir.inputfiles;
 
-      if (!setting.config) {
+      // config が存在しないときは null か空オブジェクトが来る。空文字列ではない。
+      if (setting.config === null || Object.keys(setting.config).length === 0) {
         setting.error = `${CONFIG_FILE_NAME} cannot read or is empty.`;
         settings.push(setting);
         continue;

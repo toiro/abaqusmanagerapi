@@ -18,11 +18,11 @@ export default class JobPicker {
     await this._init();
 
     // Waiting のジョブを取得し、priority - createdAt 順に並べる
-    const waitingJobs = await queries.jobsOn(STATUS.Waiting);
+    const waitingJobs = await queries.jobsOn(STATUS.Waiting, true);
     if (waitingJobs.length === 0) return [];
     waitingJobs.sort((a, b) => a.priority !== b.priority ? a.priority - b.priority : a.createdAt - b.createdAt);
 
-    const runningJobs = await queries.jobsOn(STATUS.Running);
+    const runningJobs = await queries.jobsOn(STATUS.Running, true);
 
     // 起動条件を満たすジョブを選択する
     return this._getStartingJobs(waitingJobs, runningJobs);

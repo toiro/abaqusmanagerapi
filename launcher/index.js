@@ -71,9 +71,9 @@ export default async opt => {
 };
 
 async function scanMissingJobs() {
-  const starting = await queries.jobsOn(STATUS.Starting);
-  const ready = await queries.jobsOn(STATUS.Ready);
-  const running = await queries.jobsOn(STATUS.Running);
+  const starting = await queries.jobsOn(STATUS.Starting, true);
+  const ready = await queries.jobsOn(STATUS.Ready, true);
+  const running = await queries.jobsOn(STATUS.Running, true);
 
   const toBeMissing = starting.concat(ready).concat(running);
 

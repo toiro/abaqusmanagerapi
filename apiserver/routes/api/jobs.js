@@ -21,6 +21,7 @@ router
   })
   .get('/', async(ctx, next) => {
     const filter = {};
+    if (ctx.request.query.name) filter.name = ctx.request.query.name;
     if (ctx.request.query.owner) filter.owner = ctx.request.query.owner;
     if (ctx.request.query.node) filter.node = ctx.request.query.node;
     if (ctx.request.query.cpus) filter['command.cpus'] = ctx.request.query.cpus;

@@ -29,7 +29,8 @@ const schema = new mongoose.Schema({
     external: {
       cpus: { type: Number },
       maxConcurrentJobs: { type: Number },
-      readyTimeout: { type: Number }
+      readyTimeout: { type: Number },
+      workingDir: { type: String }
     }
   },
   priority: { type: Number, enum: Object.values(JobPriority), default: JobPriority.Middle },
