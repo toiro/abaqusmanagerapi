@@ -24,7 +24,7 @@ export default class JobLauncher extends EventEmitter {
     // 起動準備で Powershell を通じたファイルアクセスが発生するので、並行処理を避けるために queue を使う
     this.queue = async.queue(async params => launchJob(params.job, params.emitter));
     this.queue.error((err, params) => {
-      this.emit(events.QUEUE, params.job.toObject(), err);
+      this.emit(events.ERROR, params.job.toObject(), err);
     });
   }
 
