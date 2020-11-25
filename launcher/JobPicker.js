@@ -20,7 +20,7 @@ export default class JobPicker {
     // Waiting のジョブを取得し、priority - createdAt 順に並べる
     const waitingJobs = await queries.jobsOn(STATUS.Waiting, true);
     if (waitingJobs.length === 0) return [];
-    waitingJobs.sort((a, b) => a.priority !== b.priority ? a.priority - b.priority : a.createdAt - b.createdAt);
+    waitingJobs.sort((a, b) => a.priority !== b.priority ? b.priority - a.priority : a.createdAt - b.createdAt);
 
     const runningJobs = await queries.jobsOn(STATUS.Running, true);
     const startingJobs = await queries.jobsOn(STATUS.Starting, true);
@@ -56,15 +56,22 @@ class JobPickCriteria {
   }
 
   judgeJob(job, runningJobs) {
+    function countJob(jobs) {
+      return jobs.reduce(
+        (sum, job) => sum + job.input.external ? job.input.external.maxConcurrentJobs: 1,
+        0
+      )
+    }
+
     // ユーザー同時実行数
     const maxConcurrentJobForUser = this.users[job.owner] ? this.users[job.owner].maxConcurrentJob : 0;
-    const ownerCount = runningJobs.filter(_ => _.owner === job.owner).length;
-    if (ownerCount + 1 > maxConcurrentJobForUser) return false;
+    const ownerCount = countJob(runningJobs.filter(_ => _.owner === job.owner) + job);
+    if (ownerCount > maxConcurrentJobForUser) return false;
 
     // サーバー同時実行数
     const maxConcurrentJobForNode = this.nodes[job.node].maxConcurrentJob;
-    const nodeCount = runningJobs.filter(_ => _.node == job.node).length;
-    if (nodeCount + 1 > maxConcurrentJobForNode) return false;
+    const nodeCount = countJob(runningJobs.filter(_ => _.node == job.node) + job);
+    if (nodeCount > maxConcurrentJobForNode) return false;
 
     // ライセンス
     const tokenToClaim = licence.calcLicenceForJob(job);
