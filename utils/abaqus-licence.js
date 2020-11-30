@@ -1,7 +1,7 @@
 import JobStatus from '~/models/enums/job-status.js';
 import NodeModel from '~/models/node.js';
 import * as queries from '~/utils/job-find-queries.js';
-import getDslsstat from '~/utils/powershell-remote/commands/getDslsstat.js';
+import { getDslsstat } from '~/utils/powershell-remote/commands/index.js';
 
 /**
  * CPU数に対する使用計算トークン数

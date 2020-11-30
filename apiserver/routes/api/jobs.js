@@ -4,8 +4,7 @@ import koaBody from 'koa-body';
 import gridfs from '~/utils/gridfs-promise.js';
 import Job from '~/apiserver/cruds/job.js';
 import { tryRequest } from '../_helper.js';
-import getContentFromRemote from '~/utils/powershell-remote/commands/getContentFromRemote.js';
-import terminateAbaqusJob from '~/utils/powershell-remote/commands/terminateAbaqusJob.js';
+import { getContentFromRemote, terminateAbaqusJob } from '~/utils/powershell-remote/commands/index.js';
 import NodeModel from '~/models/node.js';
 import STATUS from '~/models/enums/job-status.js';
 
