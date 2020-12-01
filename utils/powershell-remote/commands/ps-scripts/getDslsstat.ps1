@@ -23,7 +23,7 @@ abaqus licensing dslsstat | .{
       "Licenses" {
         #+ Feature                   | Version | Model           | Type  | Number    | InUse   | Expires              | Server Name          | Customer ID
         if($line.startswith("|")) {
-          $rawData = ($line -split "\\|").trim()
+          $rawData = ($line -split "\|").trim()
           $entry = @{
             Feature = $rawData[1];
             Version = $rawData[2];

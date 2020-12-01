@@ -28,7 +28,7 @@ export default async opt => {
         logger.info(`Completed ${job.owner}'s job: ${job.name}`);
         jobStatusReciever.completed(job, msg, resultDir);
       } else {
-        logger.warn(`Aborted ${job.owner}'s job: ${job.name}`);
+        logger.warn(`Aborted ${job.owner}'s job: ${job.name}: ${msg}`);
         jobStatusReciever.failed(job, msg, resultDir);
       }
     });

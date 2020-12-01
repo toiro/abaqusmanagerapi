@@ -1,21 +1,27 @@
 import path from 'path';
 import { getStdout, getJSON } from '../PowerShellRemote.js';
+import scriptDir from '~/utils/scriptdir.js';
 
-//const scriptDirectory = path.join(scriptDir(import.meta), ps-scripts);
-const scriptDirectory = "D:\\Nodes\\PowershellTest\\powershell-remote\\commands\\ps-scripts";
+const scriptDirectory = path.join(scriptDir(import.meta), 'ps-scripts');
+// const scriptDirectory = 'D:\\Nodes\\PowershellTest\\powershell-remote\\commands\\ps-scripts';
 function build(commandScript, ...args) {
-  const relativePath = path.join(path.relative(process.cwd(), scriptDirectory), commandScript);
-  const command = '&".\\' + relativePath + '" ' + args.map(arg => isNaN(arg) ? `"${arg}"`: arg).join(' ');
+  const commandPath = path.join(scriptDirectory, commandScript);
+
+  const argsStr = args.map(arg => isNaN(arg) ? `"${arg}"`: arg).join(' ');
 
   return `{
     param ($Session)
+    $comstr = Get-Content "${commandPath}" -Raw
     $command = {
-      ${command}
+      param($sbstr)
+      $sb = [ScriptBlock]::Create($sbstr)
+      &$sb ${argsStr}
     }
+
     if ($Session) {
-      Invoke-Command -Session $Session -ScriptBlock $command
+      Invoke-Command -Session $Session -ScriptBlock $command -ArgumentList $comstr
     } else {
-      Invoke-Command -ScriptBlock $command
+      Invoke-Command -ScriptBlock $command -ArgumentList $comstr
     }
   }`
 }

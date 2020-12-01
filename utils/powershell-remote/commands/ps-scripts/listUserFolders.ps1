@@ -12,7 +12,7 @@ $list = Get-ChildItem -Path $Path -Directory | ForEach-Object -Begin { $ret = @(
         owner = $owner;
         name = $_.Name;
         path = $_.Fullname;
-        config = $(Get-ChildItem -Path $_.PsPath -Filter "$ConfigFileName" | ForEach-Object { $(Get-Content $_.PsPath) -Join '\n' });
+        config = [string]$(Get-ChildItem -Path $_.PsPath -Filter "$ConfigFileName" | ForEach-Object { Get-Content $_.PsPath -Raw });
         inputfiles = @($(Get-ChildItem -Path $_.PsPath -Filter '*.inp') | Foreach-Object { $_.Name });
       }
     })
