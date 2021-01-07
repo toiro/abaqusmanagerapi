@@ -58,19 +58,19 @@ class JobPickCriteria {
   judgeJob(job, runningJobs) {
     function countJob(jobs) {
       return jobs.reduce(
-        (sum, job) => sum + job.input.external ? job.input.external.maxConcurrentJobs: 1,
+        (sum, job) => sum + (job.input.external.maxConcurrentJobs ? job.input.external.maxConcurrentJobs : 1),
         0
-      )
+      );
     }
 
     // ユーザー同時実行数
     const maxConcurrentJobForUser = this.users[job.owner] ? this.users[job.owner].maxConcurrentJob : 0;
-    const ownerCount = countJob(runningJobs.filter(_ => _.owner === job.owner) + job);
+    const ownerCount = countJob(runningJobs.filter(_ => _.owner === job.owner).concat([job]));
     if (ownerCount > maxConcurrentJobForUser) return false;
 
     // サーバー同時実行数
     const maxConcurrentJobForNode = this.nodes[job.node].maxConcurrentJob;
-    const nodeCount = countJob(runningJobs.filter(_ => _.node == job.node) + job);
+    const nodeCount = countJob(runningJobs.filter(_ => _.node == job.node).concat([job]));
     if (nodeCount > maxConcurrentJobForNode) return false;
 
     // ライセンス
