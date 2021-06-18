@@ -4,12 +4,12 @@ Param(
   [String] $NewName
 )
   
-# 移動先がなければ作る
+# make dest if not exists
 if (-not $(Test-Path $DestDir)) {
   New-Item $DestDir -ItemType Directory > $null
 }
 $moved = Move-Item -Path $SourceDir -Destination $DestDir -PassThru
-#返値はドライブをまたぐと移動先を追えない
+# returned path can't be followed if drive letter is changed.
    
 if ($NewName) {
   Rename-Item "\$DestDir\\$($moved.Name)" -NewName $NewName
