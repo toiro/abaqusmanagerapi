@@ -24,9 +24,12 @@ export default class JobPicker {
 
     const runningJobs = await queries.jobsOn(STATUS.Running, true);
     const startingJobs = await queries.jobsOn(STATUS.Starting, true);
+    const readyJobs = await queries.jobsOn(STATUS.Ready, true);
+
+    const countingJobs = runningJobs.concat(startingJobs).concat(readyJobs);
 
     // 起動条件を満たすジョブを選択する
-    return this._getStartingJobs(waitingJobs, runningJobs.concat(startingJobs));
+    return this._getStartingJobs(waitingJobs, countingJobs);
   }
 }
 
