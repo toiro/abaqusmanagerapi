@@ -23,6 +23,7 @@ export default async opt => {
     })
     .on('finish', (job, code, msg, resultDir) => {
       // abaqus は「Abaqus の解析はエラーのため終了しました.」というメッセージで終了しても、終了コードは 0
+      // 逆に解析が正しく終了しても終了コードが 0 ではない場合がある
       // なので最終標準出力の内容で完了したかどうかを判定する
       if (msg.match(/Abaqus JOB [^ ]* COMPLETED/)) {
         logger.info(`Completed ${job.owner}'s job: ${job.name}`);

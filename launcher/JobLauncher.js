@@ -115,7 +115,9 @@ async function launchJob(job, emitter) {
         // 実行ディレクトリが存在しない可能性があるが、特に問題にしない
       }
 
-      const msg = (code !== 0 && emitter.stderr) ? emitter.stderr : lastStdOut;
+      // 終了コードが 0 でなくとも解析成功のケースがあるため、常に最終出力を返す
+      // const msg = (code !== 0 && emitter.stderr) ? emitter.stderr : lastStdOut;
+      const msg = lastStdOut;
       emitter.emit(events.FINISH, job.toObject(), code, msg, resultDir);
     })
     .invoke();
