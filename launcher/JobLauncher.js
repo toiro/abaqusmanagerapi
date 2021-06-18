@@ -6,9 +6,7 @@ import dateformat from 'dateformat';
 import NodeModel from '~/models/node.js';
 import PowerShellRemote from '~/utils/powershell-remote/PowerShellRemote.js';
 import AbaqusCommandBuilder from '~/utils/powershell-remote/AbaqusCommandBuilder.js';
-import sendFile from '~/utils/powershell-remote/commands/sendFile.js';
-import moveDirectory from '~/utils/powershell-remote/commands/moveDirectory.js';
-import setupInputFromSharedDirectory from '~/utils/powershell-remote/commands/setupInputFromSharedDirectory.js';
+import { sendFile, moveDirectory, setupInputFromSharedDirectory } from '~/utils/powershell-remote/commands/index.js';
 
 const events = Object.freeze({
   START: 'start',

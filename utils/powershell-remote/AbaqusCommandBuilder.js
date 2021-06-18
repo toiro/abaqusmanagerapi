@@ -46,7 +46,7 @@ export default class AbaqusCommandBuilder {
 
 const build = (command, param) => `{
   param ($Session)
-  Invoke-Command -Session $Session -ScriptBlock  {
+  $command = {
     $jobName = "${param.jobName}"
     $input = "${param.executeDirRoot}\\${param.workingDirName}\\${param.fileName}"
     $option = ${param.parsedOption}
@@ -54,5 +54,10 @@ const build = (command, param) => `{
     # interactive で実行すると log ファイルが生成されないため、生成する
     ${command} interactive "job=\${jobName}" "input=\${input}" \${option} | Tee-Object -FilePath ".\\${param.jobName}.log"
     Pop-Location
+  }
+  if ($Session) {
+    Invoke-Command -Session $Session -ScriptBlock $command
+  } else {
+    Invoke-Command -ScriptBlock $command
   }
 }`;

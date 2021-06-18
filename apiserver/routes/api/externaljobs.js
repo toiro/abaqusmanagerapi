@@ -1,6 +1,6 @@
 import Router from 'koa-router';
 import { tryRequest } from '../_helper.js';
-import listUserFolders from '~/utils/powershell-remote/commands/listUserFolders.js';
+import { listUserFolders } from '~/utils/powershell-remote/commands/index.js';
 import UserModel from '~/models/user.js';
 import NodeModel from '~/models/node.js';
 

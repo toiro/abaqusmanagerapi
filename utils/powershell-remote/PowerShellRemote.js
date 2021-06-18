@@ -7,7 +7,7 @@ import scriptDir from '~/utils/scriptdir.js';
 const scriptDirectory = scriptDir(import.meta);
 // const scriptDirectory = 'D:\\Nodes\\AbaqusManager\\AbaqusManagerApi\\utils\\powershell-remote';
 // const scriptDirectory = 'C:\\Users\\toiro\\Documents\\Project\\AbaqusManager\\abaqusmanagerapi\\utils\\powershell-remote';
-const sessionScript = '.\\ps-scripts\\winrm-session.ps1';
+const sessionScript = path.join(path.relative(process.cwd(), scriptDirectory), '.\\ps-scripts\\winrm-session.ps1');
 
 const SHELL_ENCODE = 'sjis';
 
@@ -25,10 +25,10 @@ export default class PowerShellRemote extends EventEmitter {
   };
 
   invoke() {
-    const script = path.join(path.relative(process.cwd(), scriptDirectory), sessionScript);
+    // const script = path.join(path.relative(process.cwd(), scriptDirectory), sessionScript);
     const _param = this._param;
     // console.log([script, _param.host, _param.user, _param.encriptedPassword, _param.script]);
-    const powerShell = childProcess.spawn('powershell', [script, _param.host, _param.user, _param.encriptedPassword, _param.script]);
+    const powerShell = childProcess.spawn('powershell', [sessionScript, _param.host, _param.user, _param.encriptedPassword, _param.script]);
     this.emit('start', [sessionScript, _param.host, _param.user, _param.encriptedPassword, _param.script]);
     powerShell.stdout.on('data', data => {
       this._lastOutput = data.toString();
