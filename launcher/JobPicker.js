@@ -79,7 +79,7 @@ class JobPickCriteria {
     // ライセンス
     const tokenToClaim = licence.calcLicenceForJob(job);
     const tokenInUse = licence.calcLicenceForJobs(runningJobs);
-    if (tokenToClaim > this.availableToken - tokenInUse) return false;
+    if (this.availableToken < tokenToClaim + tokenInUse) return false;
 
     return true;
   }

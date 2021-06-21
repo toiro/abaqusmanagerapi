@@ -43,7 +43,7 @@ router
       const deleted = await Job.deleteEntry(condition);
       if (deleted && deleted.input.uploaded) {
         // delete input file in gridfs
-        console.log(deleted.input.uploaded);
+        // console.log(deleted.input.uploaded);
         await gridfs.delete(deleted.input.uploaded);
         ctx.body = deleted;
       } else {

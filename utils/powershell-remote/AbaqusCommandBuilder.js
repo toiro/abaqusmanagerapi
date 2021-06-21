@@ -26,7 +26,7 @@ export default class AbaqusCommandBuilder {
 
     const options = [];
     options.push(`cpus=${this._param.cpus}`);
-    console.log(this._param.options);
+    // console.log(this._param.options);
     if (Array.isArray(this._param.options)) {
       for (const option of this._param.options) {
         if (option.value) {

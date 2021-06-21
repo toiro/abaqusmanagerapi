@@ -84,7 +84,7 @@ async function launchJob(job, emitter) {
   }
 
   // abaqus コマンド起動
-  console.log(job);
+  // console.log(job);
   const abaqusCommand = new AbaqusCommandBuilder(command);
   abaqusCommand
     .setJobName(job.name)
@@ -94,7 +94,7 @@ async function launchJob(job, emitter) {
     .setExecuteDirRoot(node.executeDirectoryRoot)
     .setWorkingDirName(workingDirName);
 
-  console.log(abaqusCommand.build());
+  // console.log(abaqusCommand.build());
   const psRemote = new PowerShellRemote(node.hostname, node.winrmCredential.user, node.winrmCredential.encryptedPassword, abaqusCommand.build());
   // await しない
   psRemote
