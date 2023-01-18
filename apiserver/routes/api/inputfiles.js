@@ -1,6 +1,6 @@
 import Router from 'koa-router';
 import multer from '@koa/multer';
-import GridFsStorage from 'multer-gridfs-storage';
+import { GridFsStorage } from 'multer-gridfs-storage';
 import mongoose from 'mongoose';
 import gridfs from '~/utils/gridfs-promise.js';
 import { tryRequest } from '../_helper.js';

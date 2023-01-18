@@ -3,13 +3,19 @@ import mongoose from 'mongoose';
 /**
  * @type { mongoose.mongo.GridFSBucket }
  */
-const gridfs = new mongoose.mongo.GridFSBucket(mongoose.connection.db, { bucketName: 'inputfiles' });
+
+let _gridfs = null;
+function getGridfs() {
+  if (mongoose.connection.readyState == 1) return null;
+  if (!_gridfs) _gridfs = new mongoose.mongo.GridFSBucket(mongoose.connection.db, { bucketName: 'inputfiles' });
+  return _gridfs;
+}
 
 export default {
   delete(id) {
     const oId = wrapId(id);
     return new Promise((resolve, reject) => {
-      gridfs.delete(oId, error => {
+      getGridfs().delete(oId, error => {
         if (error !== null) {
           reject(error);
         } else {
@@ -21,7 +27,7 @@ export default {
   findById(id) {
     const oId = wrapId(id);
     return new Promise((resolve, reject) => {
-      gridfs
+      getGridfs()
         .find({
           _id: oId
         })
@@ -38,7 +44,7 @@ export default {
     const oId = wrapId(id);
     return new Promise((resolve, reject) => {
       // 存在チェック
-      gridfs
+      getGridfs()
         .find({
           _id: oId
         })
@@ -48,7 +54,7 @@ export default {
             reject(new Error(`file not found for id: ${id}`));
           }
           // ストリームを返す
-          resolve(gridfs.openDownloadStream(oId));
+          resolve(getGridfs().openDownloadStream(oId));
         });
     });
   }

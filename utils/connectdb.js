@@ -8,17 +8,8 @@ import logger from '~/utils/logger.js';
  */
 export default async() => {
   const dbconfig = appconfig.get('mongo');
-  const dboption = {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false,
-    useCreateIndex: true
-  };
 
-  await mongoose.connect(`mongodb://${dbconfig.host}/${dbconfig.db}`, dboption);
-
-  logger.verbose(`Conecting to mongodb on ${dbconfig.host}/${dbconfig.db}`);
-
+  mongoose.set('strictQuery', true);
   mongoose.connection.on('error', error => {
     logger.error(error);
   });
@@ -26,4 +17,9 @@ export default async() => {
   mongoose.connection.on('disconnected', () => {
     logger.verbose(`Disconnected from mongodb on ${dbconfig.host}/${dbconfig.db}`);
   });
+
+  await mongoose.connect(`mongodb://${dbconfig.host}/${dbconfig.db}`);
+  // await mongoose.connect(`mongodb://${dbconfig.host}/${dbconfig.db}`, dboption);
+
+  logger.verbose(`Conecting to mongodb on ${dbconfig.host}/${dbconfig.db}`);
 };
