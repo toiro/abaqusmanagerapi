@@ -3,9 +3,9 @@ import options from 'commander';
 import mongoose from 'mongoose';
 import graceful from 'node-graceful';
 import { logger } from '../utils/logger.js';
-import connectDb from '../utils/connectdb.js';
-import api from '../apiserver/index.js';
-import launcher from '../launcher/index.js';
+import connectDb from '../app/store/connectdb.js';
+import api from '../app/apiserver/index.js';
+import launcher from '../app/launcher/index.js';
 logger.info(`Start on mode:${config.get('env')}`);
 options
     .option('-H, --host <host>', `specify the host [${config.get('host')}]`, config.get('host'))
@@ -13,7 +13,8 @@ options
     .parse(process.argv);
 // graceful.captureExceptions = true;
 // graceful.captureRejections = true;
-graceful.on('exit', async (signal) => logger.info(`Recieve exit signal: ${signal}`));
+graceful.on('exit', (signal) => logger.info(`Recieve exit signal: ${signal}`));
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async () => {
     try {
         await connectDb();
@@ -24,17 +25,19 @@ graceful.on('exit', async (signal) => logger.info(`Recieve exit signal: ${signal
     }
     graceful.on('exit', () => mongoose.connection.close());
     const appApi = api();
+    const host = options.host;
+    const port = options.port;
     const server = appApi
-        .listen(options.port, options.host)
+        .listen(port, host)
         .on('close', () => {
-        logger.verbose(`Closed listening on ${options.host}:${options.port}`);
+        logger.verbose(`Closed listening on ${host}:${port}`);
     })
         .on('error', (error) => {
         logger.error(error);
         graceful.exit();
     });
     graceful.on('exit', () => server.close());
-    logger.verbose(`Start listening on ${options.host}:${options.port}`);
+    logger.verbose(`Start listening on ${host}:${port}`);
     const appLauncher = await launcher();
     appLauncher.start();
     graceful.on('exit', () => appLauncher.stop());

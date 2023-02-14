@@ -3,7 +3,7 @@ export const ConfigKey = {
     AdminPass: 'AdminPass',
     PriorityPass: 'PriorityPass',
     // システムから利用を許可するライセンストークン数
-    AvailableTokenCount: 'AvailableTokenCount'
+    AvailableTokenCount: 'AvailableTokenCount',
 };
 export const JobStatus = {
     Waiting: 'Waiting',
@@ -12,12 +12,12 @@ export const JobStatus = {
     Running: 'Running',
     Completed: 'Completed',
     Failed: 'Failed',
-    Missing: 'Missing'
+    Missing: 'Missing',
 };
 export const JobPriority = {
     VeryHigh: 5,
     High: 4,
     Middle: 3,
     Low: 2,
-    VeryLow: 1
+    VeryLow: 1,
 };

@@ -38,6 +38,7 @@
             {
                 "ignoreDeclarationMerge": true
             }
-        ]
+        ],
+        "no-param-reassign": ["error",{"props":false}]
     }
 }

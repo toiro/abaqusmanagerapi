@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import connectDb, { getGridFS } from 'utils/connectdb.js';
+import connectDb, { getGridFS } from 'app/store/connectdb.js';
 import { logger } from 'utils/logger.js';
 
 // eslint-disable-next-line no-void

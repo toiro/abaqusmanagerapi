@@ -5,19 +5,23 @@ import { logger } from 'utils/logger.js';
 
 const selfDir = scriptDir(import.meta);
 
-export default async (dirPath: string): Promise<any[]> => {
-  const modules = await Promise.all((await fs.promises.readdir(dirPath, { withFileTypes: true }))
-    .filter(dirent => dirent.isFile())
-    .map(async dirent => {
-      // パス区切り文字が \ だと URL として不正
-      const modulePath = path.join(path.relative(selfDir, dirPath), dirent.name).replace('\\', '/');
-      try {
-        logger.verbose(`Import dinamically from ${modulePath}`);
-        return await import(modulePath);
-      } catch (error) {
-        logger.error(`Failed to import dinamically from ${modulePath}. `, error);
-        return undefined
-      }
-    }));
+export default async (dirPath: string): Promise<unknown[]> => {
+  const modules = await Promise.all(
+    (
+      await fs.promises.readdir(dirPath, { withFileTypes: true })
+    )
+      .filter((dirent) => dirent.isFile())
+      .map(async (dirent) => {
+        // パス区切り文字が \ だと URL として不正
+        const modulePath = path.join(path.relative(selfDir, dirPath), dirent.name).replace('\\', '/');
+        try {
+          logger.verbose(`Import dinamically from ${modulePath}`);
+          return (await import(modulePath)) as unknown;
+        } catch (error) {
+          logger.error(`Failed to import dinamically from ${modulePath}. `, error);
+          return undefined;
+        }
+      })
+  );
   return modules;
 };

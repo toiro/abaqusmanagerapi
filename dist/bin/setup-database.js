@@ -1,6 +1,7 @@
-import connectDb from '../utils/connectdb.js';
-import { createConfigsFromDef } from '../utils/storedConfig.js';
-import NodeModel from '../model/node.js';
+import connectDb from '../app/store/connectdb.js';
+import { createConfigsFromDef } from '../app/junction/storedConfig.js';
+import NodeModel from '../app/store/model/node.js';
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async () => {
     await connectDb();
     // Configs
@@ -15,8 +16,8 @@ import NodeModel from '../model/node.js';
             importDirectoryRoot: 'C:\\Users\\lab\\Desktop\\AbaqusController\\abaqus_input',
             winrmCredential: {
                 user: 'lab',
-                encryptedPassword: 'xxxx'
-            }
+                encryptedPassword: 'xxxx',
+            },
         },
         {
             hostname: 'GREAT-SHUJI-X',
@@ -26,12 +27,12 @@ import NodeModel from '../model/node.js';
             importDirectoryRoot: 'C:\\temp',
             winrmCredential: {
                 user: 'lab',
-                encryptedPassword: 'xxxx'
-            }
-        }
+                encryptedPassword: 'xxxx',
+            },
+        },
     ];
-    for (const nodeDef of nodeDefs) {
-        const node = new NodeModel(nodeDef);
-        await node.save();
-    }
+    await Promise.all(nodeDefs.map((def) => {
+        const node = new NodeModel(def);
+        return node.save();
+    }));
 })();
