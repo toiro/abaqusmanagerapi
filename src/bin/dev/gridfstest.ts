@@ -1,5 +1,7 @@
 import fs from 'fs';
 import path from 'path';
+import type mongodb from 'mongodb';
+import mongoose from 'mongoose';
 import connectDb, { getGridFS } from 'app/store/connectdb.js';
 import { logger } from 'utils/logger.js';
 
@@ -24,6 +26,17 @@ void (async () => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
   const cursor = getGridFS().find({});
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-  cursor.forEach((doc: any) => logger.info(doc._id));
+  await cursor.forEach((doc) => {
+    logger.info(doc._id);
+  });
   logger.info('uploaded.');
 })();
+
+const BucketName = 'inputfiles';
+
+let gridFS: mongodb.GridFSBucket;
+export function getGridFS2() {
+  // if (mongoose.connection.readyState == 1) return null;
+  if (!gridFS) gridFS = new mongoose.mongo.GridFSBucket(mongoose.connection.db, { bucketName: BucketName });
+  return gridFS;
+}

@@ -1,9 +1,8 @@
-// @ts-nocheck
 import mongoose from 'mongoose';
-import { GridFsStorage } from 'multer-gridfs-storage';
+import { DbTypes, GridFsStorage } from 'multer-gridfs-storage';
+import type mongodb from 'mongodb';
 import appconfig from '../../utils/config.js';
 import { logger } from '../../utils/logger.js';
-
 /**
  * config に基づいて mongoDB に接続する
  *
@@ -28,22 +27,23 @@ export default async () => {
 
 const BucketName = 'inputfiles';
 
-let gridFS;
+let gridFS: mongodb.GridFSBucket;
 export function getGridFS() {
   // if (mongoose.connection.readyState == 1) return null;
   if (!gridFS) gridFS = new mongoose.mongo.GridFSBucket(mongoose.connection.db, { bucketName: BucketName });
   return gridFS;
 }
 
-let storage;
+interface IGridFSStorageFile {
+  originalname: string;
+}
+
 export function getGridFSStorage() {
-  if (!storage)
-    storage = new GridFsStorage({
-      db: mongoose.connection,
-      file: (_req, file) => ({
-        filename: file.originalname,
-        bucketName: BucketName,
-      }),
-    });
-  return storage;
+  return new GridFsStorage({
+    db: mongoose.connection as unknown as DbTypes,
+    file: (_req, file) => ({
+      filename: (file as IGridFSStorageFile).originalname,
+      bucketName: BucketName,
+    }),
+  });
 }

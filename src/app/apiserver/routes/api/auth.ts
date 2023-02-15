@@ -6,10 +6,11 @@ import { tryRequest } from '../_helper.js';
 
 const router = new Router({ prefix: '/auth' });
 
-const keys = {
+const Keys = {
   admin: ConfigKey.AdminPass,
   priority: ConfigKey.PriorityPass,
 } as const;
+type Keys = (typeof Keys)[keyof typeof Keys];
 
 type AuthRequest = {
   name: ConfigKey;
@@ -18,7 +19,7 @@ type AuthRequest = {
 
 router.post('/', koaBody(), async (ctx, _next) => {
   const param = ctx.request.body as AuthRequest;
-  const key = keys[param.name as keyof typeof keys]; // TODO
+  const key = param.name as Keys;
   await tryRequest(ctx, async () => {
     const pass = await Config.getEntry(Config.identifier(key));
     ctx.body = pass ? pass.value === param.pass : false;
