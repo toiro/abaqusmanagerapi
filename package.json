@@ -22,7 +22,7 @@
   "homepage": "https://github.com/toiro/abaqusmanagerapi#readme",
   "dependencies": {
     "@koa/multer": "^2.0.2",
-    "async": "^3.2.0",
+    "async": "^3.2.4",
     "commander": "^5.1.0",
     "config": "^3.3.1",
     "dateformat": "^3.0.3",
@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@tsconfig/strictest": "^1.0.2",
-    "@types/async": "^3.2.16",
+    "@types/async": "^3.2.18",
     "@types/commander": "^2.12.2",
     "@types/config": "^3.3.0",
     "@types/dateformat": "^5.0.0",

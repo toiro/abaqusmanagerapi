@@ -12,12 +12,10 @@ export interface IJob {
   node: string;
   command: {
     cpus: number;
-    options: [
-      {
-        name: string;
-        vaule?: string;
-      }
-    ];
+    options: {
+      name: string;
+      vaule?: string;
+    }[];
   };
   input: {
     sharedDirectory?: {

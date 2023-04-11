@@ -2,9 +2,9 @@ import schedule from 'node-cron';
 import { logger } from 'utils/logger.js';
 import { jobsOn } from 'app/junction/queries.js';
 import { JobStatus } from 'model/resources/enums.js';
-import { asyncCallback } from 'utils/asyncawait.js';
 import jobStatusReciever from 'app/junction/JobStatuRecieverSingleton.js';
 import type { IJob } from 'model/job.js';
+import type { Document } from 'mongoose';
 import JobPicker from './JobPicker.js';
 import JobLauncher, { LaunchEventName } from './JobLauncher.js';
 
@@ -60,12 +60,13 @@ export default async () => {
   // 10秒間隔で実行
   const task = schedule.schedule(
     '*/10 * * * * *',
-    asyncCallback(async () => {
+    async () => {
       const jobs = await picker.pick();
       jobs.forEach((job) => {
         // TODO refactor
         logger.verbose(`Pick ${job.owner}'s job: ${job.name}`);
-        if (job.input.external) {
+
+        if (job.input.external && !(job.input.external as unknown as Document).$isEmpty('')) {
           jobStatusReciever.ready(job);
           // Starting で放置されたものは Missing として後続を実行する
           let timeout = job.input.external.readyTimeout * 60 * 1000;
@@ -82,7 +83,7 @@ export default async () => {
         }
       });
       // checkJobStatus() // TODO ジョブの追跡に失敗していないかを検証する
-    }),
+    },
     {
       scheduled: false,
       timezone: 'Asia/Tokyo',

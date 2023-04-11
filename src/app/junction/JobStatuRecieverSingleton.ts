@@ -1,8 +1,8 @@
 import { EventEmitter } from 'events';
 import JobModel from 'app/store/model/job.js';
 import { JobStatus } from 'model/resources/enums.js';
-import { asyncCallback } from 'utils/asyncawait.js';
-import type { IJob } from 'model/job';
+import type { IJob } from 'model/job.js';
+import { logger } from 'utils/logger.js';
 
 const Event = {
   Update: 'update',
@@ -19,37 +19,33 @@ export type JobStatusRecieverEventOption = {
 class JobStatusReciever extends EventEmitter {
   constructor() {
     super();
-    this.on(
-      Event.Update,
-      asyncCallback(async (job: IJob, status: JobStatus, option: JobStatusRecieverEventOption = {}) => {
-        const doc = (await JobModel.findById(job._id))!;
-        doc.status = {
-          code: status,
-          message: option.message ?? doc.status.message ?? '',
-          executeDirectoryPath: option.executeDirectoryPath ?? doc.status.executeDirectoryPath ?? '',
-          resultDirectoryPath: option.resultDirectoryPath ?? doc.status.resultDirectoryPath ?? '',
-          at: new Date(),
-        };
-        await doc.save();
-      })
-    );
+    this.on(Event.Update, async (job: IJob, status: JobStatus, option: JobStatusRecieverEventOption = {}) => {
+      const doc = (await JobModel.findById(job._id))!;
+      doc.status = {
+        code: status,
+        message: option.message ?? doc.status.message ?? '',
+        executeDirectoryPath: option.executeDirectoryPath ?? doc.status.executeDirectoryPath ?? '',
+        resultDirectoryPath: option.resultDirectoryPath ?? doc.status.resultDirectoryPath ?? '',
+        at: new Date(),
+      };
+      logger.verbose(`${job._id.toString()}: ${job.status.code} => ${status}`);
+      await doc.save();
+    });
     // 前提ステータスの時だけ、ステータスを変更する
     this.on(
       Event.Transit,
-      asyncCallback(
-        async (job: IJob, fromStatus: JobStatus, toStatus: JobStatus, option: { [key: string]: string } = {}) => {
-          const filter = {
-            _id: job._id,
-            'status.code': fromStatus,
-          };
-          const update = {
-            'status.code': toStatus,
-            'status.at': new Date(),
-            'status.message': option.message ? option.message : undefined,
-          };
-          await JobModel.findOneAndUpdate(filter, update);
-        }
-      )
+      async (job: IJob, fromStatus: JobStatus, toStatus: JobStatus, option: { [key: string]: string } = {}) => {
+        const filter = {
+          _id: job._id,
+          'status.code': fromStatus,
+        };
+        const update = {
+          'status.code': toStatus,
+          'status.at': new Date(),
+          'status.message': option.message ? option.message : undefined,
+        };
+        await JobModel.findOneAndUpdate(filter, update);
+      }
     );
   }
 

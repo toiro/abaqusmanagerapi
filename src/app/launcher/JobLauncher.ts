@@ -11,8 +11,8 @@ import {
   setupInputFromSharedDirectory,
 } from 'app/junction/powershell-remote/commands/index.js';
 import { getNode } from 'app/junction/queries.js';
-import { asyncCallback } from 'utils/asyncawait.js';
 import type { IJob } from 'model/job';
+import type { Document } from 'mongoose';
 
 export const LaunchEventName = {
   START: 'start',
@@ -55,9 +55,9 @@ async function launchJob(job: IJob, emitter: JobLauncher) {
       await sendFile(node, localTempDir, node.executeDirectoryRoot);
     } finally {
       // 一時ファイルを削除する。非同期にして以後関知しない。
-      fs.rmdir(localTempDir, { recursive: true }, () => {});
+      fs.rm(localTempDir, { recursive: true }, () => {});
     }
-  } else if (job.input.sharedDirectory) {
+  } else if (job.input.sharedDirectory && !(job.input.sharedDirectory as unknown as Document).$isEmpty('')) {
     const $param = job.input.sharedDirectory;
     // 作業ディレクトリに必要なファイルを配置し、インプットファイルが最後の一つならソースディレクトリを削除する
     inputFileName = $param.inputfile;
@@ -108,26 +108,23 @@ async function launchJob(job: IJob, emitter: JobLauncher) {
     .on('error', (error: Error) => {
       emitter.emit(LaunchEventName.ERROR, job, error);
     })
-    .on(
-      'finish',
-      asyncCallback(async (code: string, lastStdOut: string) => {
-        const resultDir = path.join(node.resultDirectoryRoot, job.owner, workingDirName);
-        try {
-          await moveDirectory(
-            node,
-            path.join(node.executeDirectoryRoot, workingDirName),
-            path.join(node.resultDirectoryRoot, job.owner)
-          );
-        } catch (err) {
-          // 実行ディレクトリが存在しない可能性があるが、特に問題にしない
-        }
+    .on('finish', async (code: string, lastStdOut: string) => {
+      const resultDir = path.join(node.resultDirectoryRoot, job.owner, workingDirName);
+      try {
+        await moveDirectory(
+          node,
+          path.join(node.executeDirectoryRoot, workingDirName),
+          path.join(node.resultDirectoryRoot, job.owner)
+        );
+      } catch (err) {
+        // 実行ディレクトリが存在しない可能性があるが、特に問題にしない
+      }
 
-        // 終了コードが 0 でなくとも解析成功のケースがあるため、常に最終出力を返す
-        // const msg = (code !== 0 && emitter.stderr) ? emitter.stderr : lastStdOut;
-        const msg = lastStdOut;
-        emitter.emit(LaunchEventName.FINISH, job, code, msg, resultDir);
-      })
-    )
+      // 終了コードが 0 でなくとも解析成功のケースがあるため、常に最終出力を返す
+      // const msg = (code !== 0 && emitter.stderr) ? emitter.stderr : lastStdOut;
+      const msg = lastStdOut;
+      emitter.emit(LaunchEventName.FINISH, job, code, msg, resultDir);
+    })
     .invoke();
 
   emitter.emit(LaunchEventName.LAUNCH, job, path.join(node.executeDirectoryRoot, workingDirName));
@@ -139,7 +136,7 @@ export default class JobLauncher extends EventEmitter {
   constructor() {
     super();
     // 起動準備で Powershell を通じたファイルアクセスが発生するので、並行処理を避けるために queue を使う
-    this.queue = async.queue(asyncCallback(async (params: LaunchParameters) => launchJob(params.job, params.emitter)));
+    this.queue = async.queue((params: LaunchParameters) => launchJob(params.job, params.emitter));
     this.queue.error((err, params) => {
       this.emit(LaunchEventName.ERROR, params.job, err);
     });

@@ -19,9 +19,10 @@ type AuthRequest = {
 
 router.post('/', koaBody(), async (ctx, _next) => {
   const param = ctx.request.body as AuthRequest;
-  const key = param.name as Keys;
+  const key = Keys[param.name as keyof typeof Keys];
   await tryRequest(ctx, async () => {
     const pass = await Config.getEntry(Config.identifier(key));
+    console.log(Config.identifier(key));
     ctx.body = pass ? pass.value === param.pass : false;
   });
 });

@@ -27,11 +27,11 @@ export default async () => {
 
 const BucketName = 'inputfiles';
 
-let gridFS: mongodb.GridFSBucket;
-export function getGridFS() {
+let gridFSB: mongodb.GridFSBucket;
+export function getGridFSB() {
   // if (mongoose.connection.readyState == 1) return null;
-  if (!gridFS) gridFS = new mongoose.mongo.GridFSBucket(mongoose.connection.db, { bucketName: BucketName });
-  return gridFS;
+  if (!gridFSB) gridFSB = new mongoose.mongo.GridFSBucket(mongoose.connection.db, { bucketName: BucketName });
+  return gridFSB;
 }
 
 interface IGridFSStorageFile {

@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import type mongodb from 'mongodb';
 import mongoose from 'mongoose';
-import connectDb, { getGridFS } from 'app/store/connectdb.js';
+import connectDb, { getGridFSB } from 'app/store/connectdb.js';
 import { logger } from 'utils/logger.js';
 
 // eslint-disable-next-line no-void
@@ -17,14 +17,14 @@ void (async () => {
   const readstream = fs.createReadStream(path.join(process.cwd(), './resources/encript.ps1'));
   readstream.pipe(
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-    getGridFS().openUploadStream('testfile', {
+    getGridFSB().openUploadStream('testfile', {
       chunkSizeBytes: 1048576,
       metadata: { field: 'myField', value: 'myValue' },
     })
   );
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-  const cursor = getGridFS().find({});
+  const cursor = getGridFSB().find({});
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
   await cursor.forEach((doc) => {
     logger.info(doc._id);
