@@ -1,12 +1,6 @@
-type JobCommand = { [key: string]: string | number };
+import type JobCommand from './JobCommand';
 
-export type JobConfig = {
-  name?: string;
-  description?: string;
-  command: JobCommand;
-};
-
-export type DirectoryInfoBody = {
+type DirectoryInfoBody = {
   name: string;
   owner: string;
   node: string;
@@ -24,3 +18,4 @@ export type DirectoryInfoBody = {
   description: string;
   error: string;
 };
+export default DirectoryInfoBody;

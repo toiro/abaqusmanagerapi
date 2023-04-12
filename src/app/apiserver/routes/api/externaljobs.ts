@@ -5,8 +5,8 @@ import type { INode } from 'model/node.js';
 import { getActiveNodes, getActiveUsers } from 'app/junction/queries.js';
 import type { IUser } from 'model/user.js';
 import type { Dict } from 'utils/dict.js';
-import { tryRequest } from '../_helper.js';
-import type { DirectoryInfoBody } from '../types.js';
+import tryRequest from '../../helpers/tryRequest.js';
+import type DirectoryInfoBody from '../../types/DirectoryInfoBody.js';
 
 const CONFIG_FILE_NAME = 'abaqusjob_config.json';
 async function getJobSettings(users: Dict<string, IUser>, nodes: Dict<string, INode>) {
