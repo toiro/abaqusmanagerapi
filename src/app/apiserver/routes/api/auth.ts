@@ -2,7 +2,7 @@ import Router from 'koa-router';
 import koaBody from 'koa-body';
 import Config from 'app/store/cruds/config.js';
 import { ConfigKey } from 'model/resources/enums.js';
-import { tryRequest } from '../_helper.js';
+import tryRequest from '../../helpers/tryRequest.js';
 
 const router = new Router({ prefix: '/auth' });
 
@@ -22,7 +22,6 @@ router.post('/', koaBody(), async (ctx, _next) => {
   const key = Keys[param.name as keyof typeof Keys];
   await tryRequest(ctx, async () => {
     const pass = await Config.getEntry(Config.identifier(key));
-    console.log(Config.identifier(key));
     ctx.body = pass ? pass.value === param.pass : false;
   });
 });

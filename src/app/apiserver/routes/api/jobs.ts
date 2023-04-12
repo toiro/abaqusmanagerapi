@@ -8,7 +8,7 @@ import { getContentFromRemote, terminateAbaqusJob } from 'app/junction/powershel
 import { getNode } from 'app/junction/queries.js';
 import { JobStatus } from 'model/resources/enums.js';
 import type { IJob } from 'model/job.js';
-import { tryRequest } from '../_helper.js';
+import tryRequest from '../../helpers/tryRequest.js';
 
 const router = new Router({ prefix: '/jobs' });
 

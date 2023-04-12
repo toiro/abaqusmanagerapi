@@ -4,8 +4,9 @@ import type { INode } from 'model/node.js';
 import type { IUser } from 'model/user.js';
 import { getActiveUsers, getActiveNodes } from 'app/junction/queries.js';
 import type { UniquePropDict } from 'utils/dict.js';
-import { tryRequest } from '../_helper.js';
-import type { DirectoryInfoBody, JobConfig } from '../types.js';
+import tryRequest from '../../helpers/tryRequest.js';
+import type JobConfig from '../../types/JobConfig.js';
+import type DirectoryInfoBody from '../../types/DirectoryInfoBody.js';
 
 const CONFIG_FILE_NAME = 'abaqusjob_config.json';
 async function getJobSettings(users: UniquePropDict<'name', IUser>, nodes: UniquePropDict<'hostname', INode>) {

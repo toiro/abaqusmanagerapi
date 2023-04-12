@@ -2,7 +2,7 @@ import Router from 'koa-router';
 import koaBody from 'koa-body';
 import User from 'app/store/cruds/user.js';
 import type { IUser } from 'model/user.js';
-import { tryRequest } from '../_helper.js';
+import tryRequest from '../../helpers/tryRequest.js';
 
 const router = new Router({ prefix: '/users' });
 
