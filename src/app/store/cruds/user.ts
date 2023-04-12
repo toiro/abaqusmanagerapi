@@ -1,5 +1,5 @@
 import UserModel from '../model/user.js';
-import template from './_template.js';
+import template from '../utils/crudTemplate.js';
 
 const crud = template(UserModel, 'name');
 

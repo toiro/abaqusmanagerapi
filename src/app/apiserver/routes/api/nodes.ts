@@ -1,8 +1,8 @@
 import Router from 'koa-router';
-import koaBody from 'koa-body';
+import { koaBody } from 'koa-body';
 import Node from 'app/store/cruds/node.js';
 import type { INode } from 'model/node.js';
-import tryRequest from '../../helpers/tryRequest.js';
+import tryRequest from '../../utils/tryRequest.js';
 
 const router = new Router({ prefix: '/nodes' });
 

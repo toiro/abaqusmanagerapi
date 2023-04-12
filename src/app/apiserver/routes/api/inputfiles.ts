@@ -3,7 +3,7 @@ import multer, { StorageEngine } from '@koa/multer';
 import gridfs from 'app/store/gridfs-promise.js';
 import type { DefaultContext, ParameterizedContext } from 'koa';
 import { getGridFSStorage } from 'app/store/connectdb.js';
-import tryRequest from '../../helpers/tryRequest.js';
+import tryRequest from '../../utils/tryRequest.js';
 
 const upload = multer({
   storage: getGridFSStorage() as StorageEngine,

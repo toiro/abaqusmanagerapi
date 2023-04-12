@@ -1,5 +1,5 @@
 import config from 'config';
-import options from 'commander';
+import { Command } from 'commander';
 import mongoose from 'mongoose';
 import graceful from 'node-graceful';
 import { logger } from 'utils/logger.js';
@@ -9,10 +9,12 @@ import launcher from 'app/launcher/index.js';
 
 logger.info(`Start on mode:${config.get<string>('env')}`);
 
-options
+const program = new Command();
+program
   .option('-H, --host <host>', `specify the host [${config.get<string>('host')}]`, config.get('host'))
   .option('-p, --port <port>', `specify the port [${config.get<number>('port')}]`, config.get('port'))
-  .parse(process.argv);
+  .parse();
+const options = program.opts();
 
 // graceful.captureExceptions = true;
 // graceful.captureRejections = true;

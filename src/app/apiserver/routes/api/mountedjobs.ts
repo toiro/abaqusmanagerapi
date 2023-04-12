@@ -4,7 +4,7 @@ import type { INode } from 'model/node.js';
 import type { IUser } from 'model/user.js';
 import { getActiveUsers, getActiveNodes } from 'app/junction/queries.js';
 import type { UniquePropDict } from 'utils/dict.js';
-import tryRequest from '../../helpers/tryRequest.js';
+import tryRequest from '../../utils/tryRequest.js';
 import type JobConfig from '../../types/JobConfig.js';
 import type DirectoryInfoBody from '../../types/DirectoryInfoBody.js';
 
