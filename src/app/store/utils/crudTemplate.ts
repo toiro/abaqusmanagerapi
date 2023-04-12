@@ -1,8 +1,23 @@
 import type { ObjectId } from 'mongoose';
 import type mongoose from 'mongoose';
 
-type Model<ISchema> = mongoose.Model<ISchema, {}, {}, {}, any>;
-type POJO<ISchema> = mongoose.LeanDocument<ISchema> & ISchema & { _id: mongoose.Types.ObjectId };
+type Model<T> = mongoose.Model<
+  T,
+  {},
+  {},
+  {},
+  mongoose.Document<unknown, {}, T> &
+    Omit<
+      T &
+        Required<{
+          _id: mongoose.Types.ObjectId;
+        }>,
+      never
+    >,
+  any
+>;
+// type Model<ISchema> = mongoose.Model<ISchema, {}, {}, {}, any>;
+// type POJO<ISchema> = mongoose.Document<ISchema> & ISchema & { _id: mongoose.Types.ObjectId };
 
 /**
  * Mongoose への CRUD 操作を共通化するためのテンプレート
@@ -26,7 +41,7 @@ export default <ISchema>(Model: Model<ISchema>, idKey: string = '_id') => ({
    */
   getEntrys: async (filter: mongoose.FilterQuery<ISchema> = {}) => {
     const docs = await Model.find(filter).exec();
-    return docs.map((doc) => doc.toObject() as POJO<ISchema>);
+    return docs.map((doc) => doc.toObject());
   },
   /**
    * DB からエントリーを一つ取得する
@@ -35,7 +50,7 @@ export default <ISchema>(Model: Model<ISchema>, idKey: string = '_id') => ({
    */
   getEntry: async (identifier: mongoose.FilterQuery<ISchema>) => {
     const doc = await Model.findOne(identifier).exec();
-    return doc ? (doc.toObject() as POJO<ISchema>) : null;
+    return doc ? doc.toObject() : null;
   },
   /**
    * DB からエントリーを一つ削除する

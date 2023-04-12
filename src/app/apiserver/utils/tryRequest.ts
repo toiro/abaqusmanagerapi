@@ -6,8 +6,8 @@ import type { IRouterParamContext } from 'koa-router';
  * @param {ParameterizedContext<any, Router.IRouterParamContext<any, {}>>} ctx
  * @param {Function} toTry
  */
-async function tryRequest(
-  ctx: ParameterizedContext<any, IRouterParamContext<any, {}>, any>,
+async function tryRequest<T>(
+  ctx: ParameterizedContext<any, IRouterParamContext<any, T>, any>,
   toTry: () => Promise<void>
 ) {
   try {

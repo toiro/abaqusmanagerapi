@@ -2,7 +2,7 @@ import Router from 'koa-router';
 import * as licenseUtil from 'app/junction/abaqus/abaqus-licence.js';
 import config from 'app/junction/storedConfig.js';
 import { ConfigKey } from 'model/resources/enums.js';
-import tryRequest from '../../helpers/tryRequest.js';
+import tryRequest from '../../utils/tryRequest.js';
 
 const router = new Router({ prefix: '/stats' });
 

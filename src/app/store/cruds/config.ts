@@ -1,5 +1,5 @@
 import ConfigModel from '../model/config.js';
-import template from './_template.js';
+import template from '../utils/crudTemplate.js';
 
 const crud = template(ConfigModel, 'key');
 
