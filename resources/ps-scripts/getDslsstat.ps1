@@ -21,19 +21,20 @@ abaqus licensing dslsstat | .{
         }
       }
       "Licenses" {
-        #+ Feature                   | Version | Model           | Type  | Number    | InUse   | Expires              | Server Name          | Customer ID
+        #| Feature | Version | Max Release | Model | Type | Number | InUse | Expires | Server Name | Customer ID
         if($line.startswith("|")) {
           $rawData = ($line -split "\|").trim()
           $entry = @{
             Feature = $rawData[1];
             Version = $rawData[2];
-            Model = $rawData[3];
-            Type = $rawData[4];
-            Number = $rawData[5];
-            InUse = $rawData[6];
-            Expires = $rawData[7];
-            ServerName = $rawData[8];
-            CustomerID = $rawData[9]
+            MaxRelease = $rawData[3]
+            Model = $rawData[4];
+            Type = $rawData[5];
+            Number = $rawData[6];
+            InUse = $rawData[7];
+            Expires = $rawData[8];
+            ServerName = $rawData[9];
+            CustomerID = $rawData[10]
           }
           $ret.Licenses += $entry
         }
