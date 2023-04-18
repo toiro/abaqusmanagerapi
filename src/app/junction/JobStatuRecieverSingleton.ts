@@ -10,17 +10,22 @@ const Event = {
 } as const;
 type Event = (typeof Event)[keyof typeof Event];
 
-export type JobStatusRecieverEventOption = {
+export type JobStatusUpdateOption = {
   message?: string;
   executeDirectoryPath?: string;
   resultDirectoryPath?: string;
 };
 
+type JobStatusTransitOption = {
+  message?: string;
+};
+
 class JobStatusReciever extends EventEmitter {
   constructor() {
     super();
-    this.on(Event.Update, async (job: IJob, status: JobStatus, option: JobStatusRecieverEventOption = {}) => {
+    this.on(Event.Update, async (job: IJob, status: JobStatus, option: JobStatusUpdateOption = {}) => {
       const doc = (await JobModel.findById(job._id))!;
+      const oldStatus = doc.status.code;
       doc.status = {
         code: status,
         message: option.message ?? doc.status.message ?? '',
@@ -28,13 +33,13 @@ class JobStatusReciever extends EventEmitter {
         resultDirectoryPath: option.resultDirectoryPath ?? doc.status.resultDirectoryPath ?? '',
         at: new Date(),
       };
-      logger.verbose(`${job._id.toString()}: ${job.status.code} => ${status}`);
       await doc.save();
+      logger.verbose(`${job._id.toString()}: ${oldStatus} => ${status}`);
     });
     // 前提ステータスの時だけ、ステータスを変更する
     this.on(
       Event.Transit,
-      async (job: IJob, fromStatus: JobStatus, toStatus: JobStatus, option: { [key: string]: string } = {}) => {
+      async (job: IJob, fromStatus: JobStatus, toStatus: JobStatus, option: JobStatusTransitOption = {}) => {
         const filter = {
           _id: job._id,
           'status.code': fromStatus,
@@ -45,6 +50,7 @@ class JobStatusReciever extends EventEmitter {
           'status.message': option.message ? option.message : undefined,
         };
         await JobModel.findOneAndUpdate(filter, update);
+        logger.verbose(`${job._id.toString()}: ${fromStatus} => ${toStatus}`);
       }
     );
   }
