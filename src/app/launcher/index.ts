@@ -68,7 +68,7 @@ export default async () => {
 
         if (job.input.external && !(job.input.external as unknown as Document).$isEmpty('')) {
           jobStatusReciever.ready(job);
-          // Starting で放置されたものは Missing として後続を実行する
+          // Ready で放置されたものは Missing として後続を実行する
           let timeout = job.input.external.readyTimeout * 60 * 1000;
           if (timeout < 0) {
             timeout = 1000;

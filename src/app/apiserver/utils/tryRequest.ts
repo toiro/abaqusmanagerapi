@@ -8,7 +8,7 @@ import type { IRouterParamContext } from 'koa-router';
  */
 async function tryRequest<T>(
   ctx: ParameterizedContext<any, IRouterParamContext<any, T>, any>,
-  toTry: () => Promise<void>
+  toTry: () => Promise<void> | void
 ) {
   try {
     await toTry();

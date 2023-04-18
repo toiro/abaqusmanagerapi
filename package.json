@@ -48,6 +48,7 @@
     "@types/commander": "^2.12.2",
     "@types/config": "^3.3.0",
     "@types/dateformat": "^5.0.0",
+    "@types/formidable": "^2.0.5",
     "@types/koa": "^2.13.5",
     "@types/koa-compress": "^4.0.3",
     "@types/koa-logger-winston": "^0.0.3",
