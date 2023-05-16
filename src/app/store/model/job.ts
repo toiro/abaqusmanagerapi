@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
-import { IJob, name } from 'model/job.js';
-import { JobPriority, JobStatus } from 'model/resources/enums.js';
+import { IJob, name } from 'sharedDefinitions/model/job.js';
+import { JobPriority, JobStatus } from 'sharedDefinitions/model/resources/enums.js';
 
 const schema = new mongoose.Schema<IJob>({
-  name: { type: String, required: true, match: /^[A-Za-z0-9_-]+$/ },
+  name: { type: String, required: true, match: /^(?!\s|[.]{2,})[^\\/:*"?<>|]{1,100}$/ },
   owner: { type: String, required: true },
   createdAt: { type: Date, required: true, default: Date.now },
   description: String,
@@ -18,20 +18,17 @@ const schema = new mongoose.Schema<IJob>({
     ],
   },
   input: {
+    type: { type: String, required: true, enum: ['upload', 'sharedDirectory', 'external'] },
     // 共有ディレクトリにファイル配置
-    sharedDirectory: {
-      path: { type: String },
-      inputfile: { type: String },
-    },
+    path: { type: String },
+    inputfile: { type: String },
     // Webからアップロード
     uploaded: { type: mongoose.Schema.Types.ObjectId },
     // CPU枠を確保して外部実行
-    external: {
-      cpus: { type: Number },
-      maxConcurrentJobs: { type: Number },
-      readyTimeout: { type: Number },
-      workingDir: { type: String },
-    },
+    cpus: { type: Number },
+    maxConcurrentJobs: { type: Number },
+    readyTimeout: { type: Number },
+    workingDir: { type: String },
   },
   priority: { type: Number, enum: Object.values(JobPriority), default: JobPriority.Middle },
   status: {

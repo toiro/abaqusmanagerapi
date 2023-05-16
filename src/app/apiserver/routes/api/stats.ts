@@ -1,20 +1,27 @@
-import Router from 'koa-router';
-import * as licenseUtil from 'app/junction/abaqus/abaqus-licence.js';
-import config from 'app/junction/storedConfig.js';
-import { ConfigKey } from 'model/resources/enums.js';
-import tryRequest from '../../utils/tryRequest.js';
+import Router from 'koa-router'
+import * as licenseUtil from 'app/junction/abaqus/abaqus-license.js'
+import { useSettingReadOnly } from 'app/junction/Setting.js'
+import MetaHandler from 'utils/MetaHandler.js'
+import tryRequest from '../../utils/tryRequest.js'
 
-const router = new Router({ prefix: '/stats' });
+const meta = new MetaHandler(import.meta)
+const router = new Router({ prefix: `/${meta.ParsedPath.name}` })
 
 router.get('/license', async (ctx, _next) => {
   await tryRequest(ctx, async () => {
-    ctx.body = {
+    const [InUseDsls, InUse, settings] = await Promise.all([
       // dsls は取れない場合もエラーにはしない
-      InUseDsls: await licenseUtil.getLicenceInUseByDslsstat().catch(() => NaN),
-      InUse: await licenseUtil.getLicenceInUseByRunningJobs(),
-      Capacity: parseInt(await config.get(ConfigKey.AvailableTokenCount), 10),
-    };
-  });
-});
+      licenseUtil.getLicenseInUseByDslsstat().catch(() => NaN),
+      licenseUtil.getLicenseInUseByRunningJobs(),
+      useSettingReadOnly(),
+    ])
 
-export default router;
+    ctx.body = {
+      InUseDsls,
+      InUse,
+      Capacity: settings.availableTokenCount,
+    }
+  })
+})
+
+export default router

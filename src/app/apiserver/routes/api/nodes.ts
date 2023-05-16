@@ -1,39 +1,44 @@
-import Router from 'koa-router';
-import { koaBody } from 'koa-body';
-import Node from 'app/store/cruds/node.js';
-import type { INode } from 'model/node.js';
-import tryRequest from '../../utils/tryRequest.js';
+import Router from 'koa-router'
+import { koaBody } from 'koa-body'
+import Node from 'app/store/cruds/node.js'
+import type { INode } from 'sharedDefinitions/model/node.js'
+import MetaHandler from 'utils/MetaHandler.js'
+import tryRequest from '../../utils/tryRequest.js'
 
-const router = new Router({ prefix: '/nodes' });
+const meta = new MetaHandler(import.meta)
+const router = new Router({ prefix: `/${meta.ParsedPath.name}` })
 
 router
   .post('/', koaBody(), async (ctx, _next) => {
-    const content = ctx.request.body as INode;
+    const content = ctx.request.body as INode
     await tryRequest(ctx, async () => {
-      ctx.body = await Node.addEntry(content);
-      ctx.status = 201;
-    });
+      ctx.body = await Node.addEntry(content)
+      ctx.status = 201
+    })
   })
   .get('/', async (ctx, _next) => {
+    const { includeNonactive } = ctx.request.query
+    // Return nodes only which has true isActive unless includeNonactive is '1'
+    const filter = includeNonactive === '1' ? {} : { isActive: true }
     await tryRequest(ctx, async () => {
-      ctx.body = await Node.getEntrys();
-    });
+      ctx.body = await Node.getEntrys(filter)
+    })
   })
   .get('/:id', async (ctx, _next) => {
     await tryRequest(ctx, async () => {
-      ctx.body = await Node.getEntry(Node.identifier(ctx.params.id as string));
-    });
+      ctx.body = await Node.getEntry(Node.identifier(ctx.params.id as string))
+    })
   })
   .post('/:id', koaBody(), async (ctx, _next) => {
-    const param = ctx.request.body as INode;
+    const param = ctx.request.body as INode
     await tryRequest(ctx, async () => {
-      ctx.body = await Node.updateEntry(Node.identifier(ctx.params.id as string), param);
-    });
+      ctx.body = await Node.updateEntry(Node.identifier(ctx.params.id as string), param)
+    })
   })
   .delete('/:id', async (ctx, _next) => {
     await tryRequest(ctx, async () => {
-      ctx.body = await Node.deleteEntry(Node.identifier(ctx.params.id as string));
-    });
-  });
+      ctx.body = await Node.deleteEntry(Node.identifier(ctx.params.id as string))
+    })
+  })
 
-export default router;
+export default router

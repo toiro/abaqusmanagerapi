@@ -1,14 +1,8 @@
-import { JobStatus } from 'model/resources/enums.js';
+import { JobStatus } from 'sharedDefinitions/model/resources/enums.js';
 import { jobsOn } from 'app/junction/queries.js';
 import JobPickCriteria from 'app/junction/JobPickerCriteria.js';
 
 export default class JobPicker {
-  // async _init() {
-  //   const criteria = new JobPickCriteria();
-  //   _getStartingJobs = (waitingJobs: Document<unknown>, runningJobs: Document<unknown>) => criteria.judge(waitingJobs, runningJobs)
-  //   await criteria.init();
-  //   return this;
-  // }
   criteria = new JobPickCriteria();
 
   async pick() {
