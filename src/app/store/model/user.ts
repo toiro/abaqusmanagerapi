@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { IUser, name } from 'model/user.js';
+import { IUser, name } from 'sharedDefinitions/model/user.js';
 
 const schema = new mongoose.Schema<IUser>({
   name: {

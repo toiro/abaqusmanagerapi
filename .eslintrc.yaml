@@ -18,7 +18,8 @@ plugins:
 rules:
   no-underscore-dangle:
     - error
-    - allow:
+    - allowAfterThis: true
+      allow:
         - _id
   import/extensions:
     - error

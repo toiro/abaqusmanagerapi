@@ -1,29 +1,34 @@
-import Router from 'koa-router';
-import { koaBody } from 'koa-body';
-import Config from 'app/store/cruds/config.js';
-import { ConfigKey } from 'model/resources/enums.js';
-import tryRequest from '../../utils/tryRequest.js';
+import Router from 'koa-router'
+import { koaBody } from 'koa-body'
+import Auth from 'app/store/cruds/auth.js'
+import MetaHandler from 'utils/MetaHandler.js'
+import tryRequest from '../../utils/tryRequest.js'
 
-const router = new Router({ prefix: '/auth' });
+const meta = new MetaHandler(import.meta)
+const router = new Router({ prefix: `/${meta.ParsedPath.name}` })
 
-const Keys = {
-  admin: ConfigKey.AdminPass,
-  priority: ConfigKey.PriorityPass,
-} as const;
-type Keys = (typeof Keys)[keyof typeof Keys];
+export const SystemAuthKeys = {
+  admin: '__AdminPass__',
+  priority: '__PriorityPass__',
+} as const
+export type SystemAuthKeys = (typeof SystemAuthKeys)[keyof typeof SystemAuthKeys]
 
 type AuthRequest = {
-  name: ConfigKey;
-  pass: string;
-};
+  name: SystemAuthKeys
+  pass: string
+}
 
 router.post('/', koaBody(), async (ctx, _next) => {
-  const param = ctx.request.body as AuthRequest;
-  const key = Keys[param.name as keyof typeof Keys];
-  await tryRequest(ctx, async () => {
-    const pass = await Config.getEntry(Config.identifier(key));
-    ctx.body = pass ? pass.value === param.pass : false;
-  });
-});
+  const param = ctx.request.body as AuthRequest
+  const key: SystemAuthKeys | undefined = SystemAuthKeys[param.name as keyof typeof SystemAuthKeys]
+  if (!key) {
+    ctx.body = false
+  } else {
+    await tryRequest(ctx, async () => {
+      const pass = await Auth.getEntry(Auth.identifier(key))
+      ctx.body = pass?.code === param.pass
+    })
+  }
+})
 
-export default router;
+export default router

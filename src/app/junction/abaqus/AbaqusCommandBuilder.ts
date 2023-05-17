@@ -1,10 +1,10 @@
 type FixedAbaqusCommandParameter = {
-  jobName: string;
-  executeDirRoot: string;
-  workingDirName: string;
-  fileName: string;
-  parsedOption: string;
-};
+  jobName: string
+  executeDirRoot: string
+  workingDirName: string
+  fileName: string
+  parsedOption: string
+}
 
 const build = (command: string, param: FixedAbaqusCommandParameter) => `{
   param ($Session)
@@ -22,43 +22,39 @@ const build = (command: string, param: FixedAbaqusCommandParameter) => `{
   } else {
     Invoke-Command -ScriptBlock $command
   }
-}`;
+}`
 
 export type AbaqusCommandParameter = {
-  jobName: string;
-  executeDirRoot: string;
-  workingDirName: string;
-  fileName: string;
-  cpus: number;
-};
+  jobName: string
+  executeDirRoot: string
+  workingDirName: string
+  fileName: string
+  cpus: number
+}
 
 export default class AbaqusCommandBuilder {
-  command: string;
+  command: string
 
-  param: AbaqusCommandParameter;
+  param: AbaqusCommandParameter
 
-  options?: { name: string; value?: string } | { name: string; value?: string }[];
+  options?: { name: string; value?: string } | { name: string; value?: string }[]
 
-  constructor(
-    command: string,
-    param: AbaqusCommandParameter,
-    options?: { name: string; value?: string } | { name: string; value?: string }[]
-  ) {
-    this.command = command;
-    this.param = param || {};
-    if (options) this.options = options;
+  constructor(command: string, param: AbaqusCommandParameter, options?: { name: string; value?: string }[]) {
+    this.command = command
+    this.param = param || {}
+    if (options) this.options = options
   }
 
   build() {
-    const options: string[] = [];
-    options.push(`cpus=${this.param.cpus}`);
+    const options: string[] = []
+    options.push(`cpus=${this.param.cpus}`)
     // console.log(this.param.options);
     if (Array.isArray(this.options)) {
       this.options.forEach((o) => {
-        options.push(o.value ? `${o.name}=${o.value}` : o.name);
-      });
+        options.push(o.value ? `${o.name}=${o.value}` : o.name)
+      })
     }
-    const joinedOptions = options.map((o) => `"${o}"`).join(',');
+    const joinedOptions = options.map((o) => `"${o}"`).join(',')
 
     const param: FixedAbaqusCommandParameter = {
       jobName: this.param.jobName,
@@ -66,9 +62,9 @@ export default class AbaqusCommandBuilder {
       workingDirName: this.param.workingDirName,
       executeDirRoot: this.param.executeDirRoot,
       parsedOption: `@(${joinedOptions})`,
-    };
+    }
 
     // console.log(build(param));
-    return build(this.command, param);
+    return build(this.command, param)
   }
 }

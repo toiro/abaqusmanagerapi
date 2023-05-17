@@ -1,16 +1,23 @@
-import path from 'path';
-import type { INode } from 'model/node.js';
-import type { IJob } from 'model/job.js';
-import { getStdout, getJSON } from '../PowerShellRemote.js';
+import path from 'path'
+import type { INode } from 'sharedDefinitions/model/node.js'
+import type { IJob } from 'sharedDefinitions/model/job.js'
+import { getStdout, getJSON, getStdoutParsed } from '../PowerShellRemote.js'
 
-type Args = (string | number)[];
+type Arg = string | string[] | number
 
-const scriptDirectory = path.join(process.cwd(), 'resources/ps-scripts');
+const scriptDirectory = path.join(process.cwd(), 'resources/ps-scripts')
 // const scriptDirectory = 'D:\\Nodes\\PowershellTest\\powershell-remote\\commands\\ps-scripts';
-function build(commandScript: string, ...args: Args) {
-  const commandPath = path.join(scriptDirectory, commandScript);
+function build(commandScript: string, ...args: Arg[]) {
+  const commandPath = path.join(scriptDirectory, commandScript)
 
-  const argsStr = args.map((arg) => (typeof arg === 'string' ? `"${arg}"` : arg)).join(' ');
+  function parseArg(arg: Arg): string | number {
+    if (Array.isArray(arg)) {
+      return `@(${arg.map((e) => parseArg(e)).join(',')})`
+    }
+    return typeof arg === 'string' ? `"${arg}"` : arg
+  }
+
+  const argsStr = args.map((arg) => parseArg(arg)).join(' ')
 
   return `{
     param ($Session)
@@ -26,7 +33,7 @@ function build(commandScript: string, ...args: Args) {
     } else {
       Invoke-Command -ScriptBlock $command -ArgumentList $comstr
     }
-  }`;
+  }`
 }
 
 // simple function
@@ -36,7 +43,7 @@ export async function findFiles(node: INode, scriptPath: string, filter: string)
     node.winrmCredential.user,
     node.winrmCredential.encryptedPassword,
     build('findFiles.ps1', scriptPath, filter)
-  );
+  )
 }
 
 export async function getContentFromRemote(node: INode, scriptPath: string, max = 100) {
@@ -45,7 +52,7 @@ export async function getContentFromRemote(node: INode, scriptPath: string, max 
     node.winrmCredential.user,
     node.winrmCredential.encryptedPassword,
     build('getContentFromRemote.ps1', scriptPath, max)
-  );
+  )
 }
 
 export async function moveDirectory(node: INode, sorceDir: string, destDir: string, newName = '') {
@@ -54,7 +61,7 @@ export async function moveDirectory(node: INode, sorceDir: string, destDir: stri
     node.winrmCredential.user,
     node.winrmCredential.encryptedPassword,
     build('moveDirectory.ps1', sorceDir, destDir, newName)
-  );
+  )
 }
 
 export async function sendFile(node: INode, source: string, dest: string) {
@@ -66,25 +73,25 @@ export async function sendFile(node: INode, source: string, dest: string) {
     } else {
       Copy-Item –Path '${source}' –Destination '${dest}' -Force -Recurse
     }
-  }`;
+  }`
 
-  return getStdout(node.hostname, node.winrmCredential.user, node.winrmCredential.encryptedPassword, command);
+  return getStdout(node.hostname, node.winrmCredential.user, node.winrmCredential.encryptedPassword, command)
 }
 
 export interface DslsStat {
-  Licenses: DslsStatLicense[];
+  Licenses: DslsStatLicense[]
 }
 
 export interface DslsStatLicense {
-  Feature: string;
-  Version: string;
-  Model: string;
-  Type: string;
-  Number: string;
-  InUse: string;
-  Expires: string;
-  ServerName: string;
-  CustomerID: string;
+  Feature: string
+  Version: string
+  Model: string
+  Type: string
+  Number: string
+  InUse: string
+  Expires: string
+  ServerName: string
+  CustomerID: string
 }
 
 // procedure
@@ -94,19 +101,19 @@ export async function getDslsstat(node: INode) {
     node.winrmCredential.user,
     node.winrmCredential.encryptedPassword,
     build('getDslsstat.ps1')
-  );
+  )
 }
 
 export interface UserFolder {
-  owner: string;
-  name: string;
-  path: string;
-  config: string;
-  inputfiles: string[];
+  owner: string
+  name: string
+  path: string
+  config: string
+  inputfiles: string[]
 }
 
 export interface ListUserFolder {
-  directories: UserFolder[];
+  directories: UserFolder[]
 }
 
 export async function listUserFolders(node: INode, configFileName: string) {
@@ -117,7 +124,7 @@ export async function listUserFolders(node: INode, configFileName: string) {
       node.winrmCredential.encryptedPassword,
       build('listUserFolders.ps1', node.importDirectoryRoot, configFileName)
     )
-  ).directories;
+  ).directories
 }
 
 export async function setupInputFromSharedDirectory(
@@ -132,7 +139,7 @@ export async function setupInputFromSharedDirectory(
     node.winrmCredential.user,
     node.winrmCredential.encryptedPassword,
     build('setupInputFromSharedDirectory.ps1', sorceDir, workingDir, inputfileName, newName)
-  );
+  )
 }
 
 export function terminateAbaqusJob(node: INode, job: IJob) {
@@ -141,5 +148,19 @@ export function terminateAbaqusJob(node: INode, job: IJob) {
     node.winrmCredential.user,
     node.winrmCredential.encryptedPassword,
     build('terminateAbaqusJob.ps1', job.status.executeDirectoryPath ?? '', job.name)
-  );
+  )
+}
+
+export function testPath(node: INode, targetPaths: string[]) {
+  return getStdoutParsed<boolean[]>(
+    node.hostname,
+    node.winrmCredential.user,
+    node.winrmCredential.encryptedPassword,
+    build('testPath.ps1', targetPaths),
+    (s) =>
+      s
+        .split(/\r\n|\n/)
+        .slice(0, -1)
+        .map((l) => l === 'True')
+  )
 }
