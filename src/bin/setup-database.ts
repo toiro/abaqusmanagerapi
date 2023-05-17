@@ -1,7 +1,9 @@
 import connectDb from 'app/store/connectdb.js'
+import AuthModel from 'app/store/model/auth.js'
 import NodeModel from 'app/store/model/node.js'
 import SettingModel from 'app/store/model/setting.js'
 import mongoose from 'mongoose'
+import { IAuth } from 'sharedDefinitions/model/auth'
 import { INode } from 'sharedDefinitions/model/node.js'
 
 await (async () => {
@@ -16,6 +18,25 @@ await (async () => {
     },
   })
   await setting.save()
+
+  const authDefs: IAuth[] = [
+    {
+      type: 'system',
+      key: '__AdminPass__',
+      code: 'fracture',
+    },
+    {
+      type: 'system',
+      key: '__PriorityPass__',
+      code: 'fracture',
+    },
+  ]
+  await Promise.all(
+    authDefs.map((def) => {
+      const auth = new AuthModel(def)
+      return auth.save()
+    })
+  )
 
   // Nodes
   const nodeDefs: INode[] = [
@@ -37,9 +58,9 @@ await (async () => {
       hostname: 'GREAT-SHUJI-X',
       availableCPUs: 10,
       licenseTokenQuota: 30,
-      executeDirectoryRoot: 'C:\\temp',
-      resultDirectoryRoot: 'C:\\temp',
-      importDirectoryRoot: 'C:\\temp',
+      executeDirectoryRoot: 'C:\\temp\\abaqus',
+      resultDirectoryRoot: 'D:\\abaqus_results',
+      importDirectoryRoot: 'D:abaqus_jobs',
       winrmCredential: {
         user: 'lab',
         encryptedPassword:

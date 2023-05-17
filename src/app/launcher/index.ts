@@ -54,10 +54,12 @@ export default async () => {
       }
     })
 
-  launcher.on(LaunchEventName.QUEUE, (job: IJob, count: number) => {
+  launcher.on(LaunchEventName.QUEUE, (task: AbaqusLaunchTask, count: number) => {
+    const { job } = task
     logger.verbose(`Queue ${job.owner}'s job: ${job.name} on ${count}th`)
   })
-  launcher.on(LaunchEventName.DEPLOY, (job: IJob, _count: number) => {
+  launcher.on(LaunchEventName.DEPLOY, (task: AbaqusLaunchTask) => {
+    const { job } = task
     logger.verbose(`Deploy ${job.owner}'s job: ${job.name}`)
   })
 
