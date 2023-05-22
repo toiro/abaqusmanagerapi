@@ -161,9 +161,9 @@ router
       const condition = Job.identifier(ctx.params.id as string)
       condition['input.external'] = { $ne: null }
       // Running なら Completed に
-      condition['status.code'] = JobStatus.Completed
+      condition['status.code'] = JobStatus.Running
       const update: UpdateStatusContent = {
-        'status.code': JobStatus.Running,
+        'status.code': JobStatus.Completed,
         'status.at': new Date(),
         'status.msg': 'Completed by external signal.',
       }
