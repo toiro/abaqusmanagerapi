@@ -81,7 +81,7 @@ router
     await tryRequest(ctx, async () => {
       const condition = Job.identifier(ctx.params.id as string)
       // 開始されていたら削除しない
-      condition['status.code'] = { $ne: JobStatus.Running }
+      condition['status.code'] = { $nin: [JobStatus.Running, JobStatus.Starting] }
       const deleted = await Job.deleteEntry(condition)
       if (deleted && deleted.input.type === 'upload') {
         // delete input file in gridfs

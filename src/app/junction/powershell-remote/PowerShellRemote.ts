@@ -45,7 +45,9 @@ export default class PowerShellRemote extends EventEmitter {
   invoke() {
     // const script = path.join(path.relative(process.cwd(), scriptDirectory), sessionScript);
     const { param } = this
-    // console.log([script, _param.host, _param.user, _param.encriptedPassword, _param.script]);
+
+    // delete env.PSModeulePath to avoid this issue (https://github.com/PowerShell/PowerShell/issues/18530)
+    delete process.env.PSModulePath
     const powerShell = childProcess.spawn('powershell', [
       sessionScript,
       param.host,

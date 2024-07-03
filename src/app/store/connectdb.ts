@@ -1,41 +1,41 @@
-import mongoose from 'mongoose';
-import { DbTypes, GridFsStorage } from 'multer-gridfs-storage';
-import type mongodb from 'mongodb';
-import appconfig from '../../utils/config.js';
-import { logger } from '../../utils/logger.js';
+import mongoose from 'mongoose'
+import { DbTypes, GridFsStorage } from 'multer-gridfs-storage'
+import type mongodb from 'mongodb'
+import appconfig from '../../utils/config.js'
+import { logger } from '../../utils/logger.js'
 /**
  * config に基づいて mongoDB に接続する
  *
  */
 export default async () => {
-  const dbconfig = appconfig.mongo;
+  const dbconfig = appconfig.mongo
 
-  mongoose.set('strictQuery', true);
+  mongoose.set('strictQuery', true)
   mongoose.connection.on('error', (error) => {
-    logger.error(error);
-  });
+    logger.error(error)
+  })
 
   mongoose.connection.on('disconnected', () => {
-    logger.verbose(`Disconnected from mongodb on ${dbconfig.host}/${dbconfig.db}`);
-  });
+    logger.verbose(`Disconnected from mongodb on ${dbconfig.host}/${dbconfig.db}`)
+  })
 
-  await mongoose.connect(`mongodb://${dbconfig.host}/${dbconfig.db}`);
+  await mongoose.connect(`mongodb://${dbconfig.host}/${dbconfig.db}`)
   // await mongoose.connect(`mongodb://${dbconfig.host}/${dbconfig.db}`, dboption);
 
-  logger.verbose(`Conecting to mongodb on ${dbconfig.host}/${dbconfig.db}`);
-};
+  logger.verbose(`Conecting to mongodb on ${dbconfig.host}/${dbconfig.db}`)
+}
 
-const BucketName = 'inputfiles';
+const BucketName = 'inputfiles'
 
-let gridFSB: mongodb.GridFSBucket;
+let gridFSB: mongodb.GridFSBucket
 export function getGridFSB() {
   // if (mongoose.connection.readyState == 1) return null;
-  if (!gridFSB) gridFSB = new mongoose.mongo.GridFSBucket(mongoose.connection.db, { bucketName: BucketName });
-  return gridFSB;
+  if (!gridFSB) gridFSB = new mongoose.mongo.GridFSBucket(mongoose.connection.db, { bucketName: BucketName })
+  return gridFSB
 }
 
 interface IGridFSStorageFile {
-  originalname: string;
+  originalname: string
 }
 
 export function getGridFSStorage() {
@@ -45,5 +45,5 @@ export function getGridFSStorage() {
       filename: (file as IGridFSStorageFile).originalname,
       bucketName: BucketName,
     }),
-  });
+  })
 }

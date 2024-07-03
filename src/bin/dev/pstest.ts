@@ -15,5 +15,6 @@ const node = {
   isActive: true,
 }
 
+
 console.log(await testPath(node, ['c:\\', 'c:\\apps']))
 console.log(await testPath(node, []))

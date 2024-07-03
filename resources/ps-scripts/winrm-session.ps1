@@ -4,7 +4,6 @@ param(
   [string]$EncirptedPassword,
   [string]$Command
 )
-
 $ErrorActionPreference = 'Stop'
 try {
   $sb = [scriptblock]::Create($Command)
@@ -15,7 +14,8 @@ try {
   $session = & {
     if ($Hostname -eq 'localhost' -or $Hostname -eq $(hostname)) {
       return $null
-    } else {
+    }
+    else {
       $decripted = ConvertTo-SecureString $EncirptedPassword
       $credential = New-Object System.Management.Automation.PsCredential($username, $decripted)
       return New-PSSession -ComputerName $Hostname -Credential $credential
@@ -23,9 +23,13 @@ try {
   }
 
   Invoke-Command -ScriptBlock $sb -ArgumentList $session
-} catch {
+}
+catch {
+  Write-Error $_
+
   exit 1
-} finally {
+}
+finally {
   if (-not $session -eq $null) {
     Remove-PSSession -Session $session
   }
