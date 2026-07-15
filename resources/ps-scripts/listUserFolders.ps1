@@ -3,7 +3,7 @@ param (
   [String] $ConfigFileName
 )
 if (-not $(Test-Path $Path)) {
-  return ConvertTo-Json @{ directories = @() }
+  return ConvertTo-Json @{ directories = @(); message = "Path $Path does not exist." }
 }
 $list = Get-ChildItem -Path $Path -Directory | ForEach-Object -Begin { $ret = @() } -Process {
     $owner = $_.Name

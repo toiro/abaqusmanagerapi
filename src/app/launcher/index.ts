@@ -96,12 +96,15 @@ export default async () => {
             launcher.launch(new AbaqusLaunchTask(job))
           }
         })
-
-        await disposer.dispose()
-        await disposer.mark()
         // checkJobStatus() // TODO ジョブの追跡に失敗していないかを検証する
       } catch (error) {
-        logger.error(error)
+        logger.error('An error occured on JobLauncher', error)
+      }
+      try {
+        await disposer.dispose()
+        await disposer.mark()
+      } catch (error) {
+        logger.error('An error occured on JobDisposer', error)
       }
     },
     {
