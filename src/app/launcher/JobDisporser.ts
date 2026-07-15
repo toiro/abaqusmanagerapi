@@ -5,6 +5,7 @@ import { EventEmitter } from 'events'
 import jobStatusReciever from 'app/junction/JobStatusRecieverSingleton.js'
 
 const RetentionPeriod = 1000 * 60 * 60 * 24 * 3
+const TestPathBatchSize = 20
 
 export const DisposeEventName = {
   MARK: 'mark',
@@ -28,14 +29,23 @@ export default class JobDisposer extends EventEmitter {
   async mark() {
     const completedJobs = await jobsOn(JobStatus.Completed)
     const nodes = await getActiveNodes()
+
+    function chunkArray<T>(items: T[], size: number) {
+      const chunks: T[][] = []
+      for (let index = 0; index < items.length; index += size) {
+        chunks.push(items.slice(index, index + size))
+      }
+      return chunks
+    }
+
     ;(
       await Promise.all(
         Object.values(nodes).map(async (node) => {
           const targets = completedJobs.filter((j) => j.node === node.hostname && j.status.resultDirectoryPath)
-          const resultExists = await testPath(
-            node,
-            targets.map((t) => t.status.resultDirectoryPath as string)
-          )
+          const targetPaths = targets.map((t) => t.status.resultDirectoryPath as string)
+          const resultExists = (
+            await Promise.all(chunkArray(targetPaths, TestPathBatchSize).map((paths) => testPath(node, paths)))
+          ).flat()
 
           return targets.filter((_t, index) => !resultExists[index])
         })
