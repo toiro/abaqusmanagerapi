@@ -30,14 +30,20 @@ export default class SerialThenPararelTaskLauncher<Context = void, Result = void
   }
 
   launch(task: ISerialThenPararelTask<Context, Result>) {
-    this.queue.push(task, async (error, context: Context | undefined) => {
+    this.queue.push(task, (error, context: Context | undefined) => {
       if (error) {
-        throw error
+        // serial() failure is handled by queue.error(handler)
+        return
       }
       this.emit(LaunchEventName.LAUNCH, task, context)
-      const ret = await task.parallel(context)
-      this.emit(LaunchEventName.FINISH, task, ret)
-      return ret
+      task
+        .parallel(context)
+        .then((ret) => {
+          this.emit(LaunchEventName.FINISH, task, ret)
+        })
+        .catch((parallelError) => {
+          this.emit(LaunchEventName.ERROR, task, parallelError)
+        })
     })
     const count = this.queue.length()
     if (count > 1) {

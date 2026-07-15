@@ -69,9 +69,9 @@ export async function sendFile(node: INode, source: string, dest: string) {
   const command = `{
     param ($Session)
     if ($Session) {
-      Copy-Item –Path '${source}' –Destination '${dest}' –ToSession $Session -Force -Recurse
+      Copy-Item -Path '${source}' -Destination '${dest}' -ToSession $Session -Force -Recurse
     } else {
-      Copy-Item –Path '${source}' –Destination '${dest}' -Force -Recurse
+      Copy-Item -Path '${source}' -Destination '${dest}' -Force -Recurse
     }
   }`
 
