@@ -30,7 +30,7 @@ catch {
   exit 1
 }
 finally {
-  if (-not $session -eq $null) {
+  if ($null -ne $session) {
     Remove-PSSession -Session $session
   }
 }

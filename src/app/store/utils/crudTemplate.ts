@@ -1,5 +1,5 @@
-import type { ObjectId } from 'mongoose';
-import type mongoose from 'mongoose';
+import type { ObjectId } from 'mongoose'
+import type mongoose from 'mongoose'
 
 type Model<T> = mongoose.Model<
   T,
@@ -10,12 +10,12 @@ type Model<T> = mongoose.Model<
     Omit<
       T &
         Required<{
-          _id: mongoose.Types.ObjectId;
+          _id: mongoose.Types.ObjectId
         }>,
       never
     >,
   any
->;
+>
 // type Model<ISchema> = mongoose.Model<ISchema, {}, {}, {}, any>;
 // type POJO<ISchema> = mongoose.Document<ISchema> & ISchema & { _id: mongoose.Types.ObjectId };
 
@@ -30,9 +30,10 @@ export default <ISchema>(Model: Model<ISchema>, idKey: string = '_id') => ({
    * DB に新しいエントリーを追加する
    */
   addEntry: async (values: ISchema) => {
-    const newEntry = new Model(values);
-    await newEntry.save();
-    return newEntry;
+    console.log('Adding entry with values:', values)
+    const newEntry = new Model(values)
+    await newEntry.save()
+    return newEntry
   },
   /**
    * DB からエントリーを取得する
@@ -40,8 +41,8 @@ export default <ISchema>(Model: Model<ISchema>, idKey: string = '_id') => ({
    * @returns {[Object]} 取得したエントリーのリスト
    */
   getEntrys: async (filter: mongoose.FilterQuery<ISchema> = {}) => {
-    const docs = await Model.find(filter).exec();
-    return docs.map((doc) => doc.toObject());
+    const docs = await Model.find(filter).exec()
+    return docs.map((doc) => doc.toObject())
   },
   /**
    * DB からエントリーを一つ取得する
@@ -49,8 +50,8 @@ export default <ISchema>(Model: Model<ISchema>, idKey: string = '_id') => ({
    * @returns {Object|null} 取得したエントリー
    */
   getEntry: async (identifier: mongoose.FilterQuery<ISchema>) => {
-    const doc = await Model.findOne(identifier).exec();
-    return doc ? doc.toObject() : null;
+    const doc = await Model.findOne(identifier).exec()
+    return doc ? doc.toObject() : null
   },
   /**
    * DB からエントリーを一つ削除する
@@ -58,8 +59,8 @@ export default <ISchema>(Model: Model<ISchema>, idKey: string = '_id') => ({
    * @returns {Object|null} 削除したエントリー
    */
   deleteEntry: async (identifier: mongoose.FilterQuery<ISchema>) => {
-    const doc = await Model.findOneAndDelete(identifier).exec();
-    return doc ? doc.toObject() : null;
+    const doc = await Model.findOneAndDelete(identifier).exec()
+    return doc ? doc.toObject() : null
   },
   /**
    * DB のエントリーを一つ更新する
@@ -68,8 +69,8 @@ export default <ISchema>(Model: Model<ISchema>, idKey: string = '_id') => ({
    * @returns {Object|null} 削除したエントリー
    */
   updateEntry: async (identifier: mongoose.FilterQuery<ISchema>, updates: mongoose.UpdateQuery<ISchema>) => {
-    const doc = await Model.findOneAndUpdate(identifier, updates, { new: true });
-    return doc ? doc.toObject() : null;
+    const doc = await Model.findOneAndUpdate(identifier, updates, { new: true })
+    return doc ? doc.toObject() : null
   },
   /**
    * 一意な値を適切な名前を付けてラップする
@@ -77,8 +78,8 @@ export default <ISchema>(Model: Model<ISchema>, idKey: string = '_id') => ({
    * @returns {Object} IDを名前付きでラップしたオブジェクト
    */
   identifier: (idValue: string | ObjectId) => {
-    const ret: { [key: string]: any } = {};
-    ret[idKey] = idValue;
-    return ret as mongoose.FilterQuery<ISchema>;
+    const ret: { [key: string]: any } = {}
+    ret[idKey] = idValue
+    return ret as mongoose.FilterQuery<ISchema>
   },
-});
+})

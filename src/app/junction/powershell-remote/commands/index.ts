@@ -6,6 +6,7 @@ import { getStdout, getJSON, getStdoutParsed } from '../PowerShellRemote.js'
 type Arg = string | string[] | number
 
 const scriptDirectory = path.join(process.cwd(), 'resources/ps-scripts')
+const TEST_PATH_TIMEOUT_MS = 30 * 1000
 // const scriptDirectory = 'D:\\Nodes\\PowershellTest\\powershell-remote\\commands\\ps-scripts';
 function build(commandScript: string, ...args: Arg[]) {
   const commandPath = path.join(scriptDirectory, commandScript)
@@ -161,6 +162,7 @@ export function testPath(node: INode, targetPaths: string[]) {
       s
         .split(/\r\n|\n/)
         .slice(0, -1)
-        .map((l) => l === 'True')
+        .map((l) => l === 'True'),
+    { timeoutMs: TEST_PATH_TIMEOUT_MS }
   )
 }

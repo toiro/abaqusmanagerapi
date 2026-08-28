@@ -71,6 +71,8 @@ export default async () => {
     logger.verbose(`Delete ${job.owner}'s job automatically: ${job.name}`)
   })
 
+  let disposerRunning = false
+
   // 10秒間隔で実行
   const task = schedule.schedule(
     '*/10 * * * * *',
@@ -100,11 +102,18 @@ export default async () => {
       } catch (error) {
         logger.error('An error occured on JobLauncher', error)
       }
-      try {
-        await disposer.dispose()
-        await disposer.mark()
-      } catch (error) {
-        logger.error('An error occured on JobDisposer', error)
+      if (!disposerRunning) {
+        disposerRunning = true
+        try {
+          await disposer.dispose()
+          await disposer.mark()
+        } catch (error) {
+          logger.error('An error occured on JobDisposer', error)
+        } finally {
+          disposerRunning = false
+        }
+      } else {
+        logger.warn('Skip JobDisposer because previous run is still in progress.')
       }
     },
     {

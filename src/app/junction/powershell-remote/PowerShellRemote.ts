@@ -14,6 +14,7 @@ type PowerShellRemoteParameter = {
   user: string
   encriptedPassword: string
   script: string
+  timeoutMs?: number
 }
 
 type PowerShellRemoteResult = {
@@ -30,13 +31,14 @@ export default class PowerShellRemote extends EventEmitter {
 
   lastOutput: string
 
-  constructor(host: string, user: string, encriptedPassword: string, script: string) {
+  constructor(host: string, user: string, encriptedPassword: string, script: string, timeoutMs?: number) {
     super()
     this.param = {
       host,
       user,
       encriptedPassword,
       script,
+      ...(typeof timeoutMs === 'number' ? { timeoutMs } : {}),
     }
     this.count = 0
     this.lastOutput = ''
@@ -55,6 +57,25 @@ export default class PowerShellRemote extends EventEmitter {
       param.encriptedPassword,
       param.script,
     ])
+
+    let timedOut = false
+    let timeoutId: NodeJS.Timeout | null = null
+    const { timeoutMs } = param
+    if (typeof timeoutMs === 'number' && timeoutMs > 0) {
+      timeoutId = setTimeout(() => {
+        timedOut = true
+        this.emit(
+          'stderr',
+          `PowerShell process timed out after ${timeoutMs}ms on host ${param.host}. Try to terminate process tree.`
+        )
+
+        if (powerShell.pid) {
+          childProcess.spawn('taskkill', ['/PID', `${powerShell.pid}`, '/T', '/F'])
+        } else {
+          powerShell.kill()
+        }
+      }, timeoutMs)
+    }
     this.emit('start', [sessionScript, param.host, param.user, param.encriptedPassword, param.script])
     powerShell.stdout.on('data', (data: Buffer) => {
       this.lastOutput = data.toString()
@@ -65,10 +86,20 @@ export default class PowerShellRemote extends EventEmitter {
       this.emit('stderr', iconv.decode(data, SHELL_ENCODE))
     })
     powerShell.on('error', (error) => {
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
       this.emit('error', error)
     })
     powerShell.on('close', (code) => {
-      this.emit('finish', code, this.lastOutput)
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
+      if (timedOut && code === 0) {
+        this.emit('finish', 1, this.lastOutput)
+      } else {
+        this.emit('finish', code, this.lastOutput)
+      }
     })
   }
 
@@ -84,7 +115,10 @@ export default class PowerShellRemote extends EventEmitter {
         })
         .on('error', (error) => reject(error))
         .on('finish', (code: number | null, lastOutput: string) => {
-          if (code === null) throw Error(`code is null`)
+          if (code === null) {
+            reject(new Error('PowerShell process closed with null exit code.'))
+            return
+          }
           resolve({ stdout, stderr, returnCode: code, lastOutput })
         })
         .invoke()
@@ -97,10 +131,11 @@ export function getStdoutParsed<T>(
   user: string,
   encPass: string,
   command: string,
-  parser: (s: string) => T | PromiseLike<T>
+  parser: (s: string) => T | PromiseLike<T>,
+  options?: { timeoutMs?: number }
 ) {
   return new Promise<T>((resolve, reject) => {
-    const psRemote = new PowerShellRemote(hostname, user, encPass, command)
+    const psRemote = new PowerShellRemote(hostname, user, encPass, command, options?.timeoutMs)
 
     let content = ''
     let errorout = ''
