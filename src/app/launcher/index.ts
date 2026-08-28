@@ -9,6 +9,9 @@ import SerialThenPararelTaskLauncher, { LaunchEventName } from './SerialThenPara
 import AbaqusLaunchTask, { AbaqusLunchJobContext, AbaqusLunchJobResult } from './AbaqusLaunchTask.js'
 import JobDisposer, { DisposeEventName } from './JobDisporser.js'
 
+const LaunchCronPattern = '*/10 * * * * *'
+const DisposerCronPattern = '0 0 3 * * *'
+
 async function scanMissingJobs() {
   const starting = await jobsOn(JobStatus.Starting)
   const ready = await jobsOn(JobStatus.Ready)
@@ -71,11 +74,9 @@ export default async () => {
     logger.verbose(`Delete ${job.owner}'s job automatically: ${job.name}`)
   })
 
-  let disposerRunning = false
-
   // 10秒間隔で実行
-  const task = schedule.schedule(
-    '*/10 * * * * *',
+  const launchTask = schedule.schedule(
+    LaunchCronPattern,
     async () => {
       try {
         const jobs = await picker.pick()
@@ -102,18 +103,30 @@ export default async () => {
       } catch (error) {
         logger.error('An error occured on JobLauncher', error)
       }
-      if (!disposerRunning) {
-        disposerRunning = true
-        try {
-          await disposer.dispose()
-          await disposer.mark()
-        } catch (error) {
-          logger.error('An error occured on JobDisposer', error)
-        } finally {
-          disposerRunning = false
-        }
-      } else {
+    },
+    {
+      scheduled: false,
+      timezone: 'Asia/Tokyo',
+    }
+  )
+
+  let disposerRunning = false
+  const disposerTask = schedule.schedule(
+    DisposerCronPattern,
+    async () => {
+      if (disposerRunning) {
         logger.warn('Skip JobDisposer because previous run is still in progress.')
+        return
+      }
+
+      disposerRunning = true
+      try {
+        await disposer.dispose()
+        await disposer.mark()
+      } catch (error) {
+        logger.error('An error occured on JobDisposer', error)
+      } finally {
+        disposerRunning = false
       }
     },
     {
@@ -122,5 +135,14 @@ export default async () => {
     }
   )
 
-  return task
+  return {
+    start() {
+      launchTask.start()
+      disposerTask.start()
+    },
+    stop() {
+      launchTask.stop()
+      disposerTask.stop()
+    },
+  }
 }
